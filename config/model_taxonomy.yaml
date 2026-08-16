@@ -1,0 +1,158 @@
+# Model library taxonomy and research configuration.
+# Root share is mounted from 192.168.1.6/models on the Mac Mini running Hermes.
+model_root: /Users/davideddy/mnt/models
+
+hardware_profile:
+  name: Intel Arc B70 local workstation
+  notes:
+    - Prioritise GGUF/llama.cpp, Vulkan/SYCL, OpenVINO, and efficient quantised formats.
+    - Treat very large frontier models as archive candidates unless a practical local inference path exists.
+
+categories:
+  Agents-ToolUse:
+    description: Tool-calling, agentic planning, browser/computer-use, function-calling models.
+    search_terms: [tool calling, function calling, agent, computer use, browser use]
+    hf_tasks: [text-generation]
+    auto_download_default: false
+  Archive-Huge:
+    description: Strategic archive area for models too large to run now but worth preserving.
+    auto_download_default: false
+    requires_approval: true
+  Audio:
+    description: General audio generation, enhancement, separation, music, and audio foundation models.
+    search_terms: [audio generation, music generation, audio separation]
+    hf_tasks: [text-to-audio, audio-to-audio]
+    auto_download_default: false
+  Coding:
+    description: Code-specialised language models and coding agents.
+    search_terms: [code, coder, coding, programming]
+    hf_tasks: [text-generation]
+    preferred_formats: [GGUF, safetensors]
+    auto_download_default: false
+  Computer-Vision:
+    description: Non-OCR vision models such as detection, segmentation, classification, depth, and image understanding.
+    search_terms: [object detection, image classification, segmentation, depth estimation]
+    hf_tasks: [image-classification, object-detection, image-segmentation, depth-estimation]
+    auto_download_default: false
+  Diffusion-Image:
+    description: Image generation and image editing diffusion/flow models.
+    search_terms: [diffusion, text-to-image, image editing, FLUX, stable diffusion]
+    hf_tasks: [text-to-image, image-to-image]
+    auto_download_default: false
+  Embeddings:
+    description: Text, code, and multimodal embedding models for retrieval and semantic search.
+    search_terms: [embedding, sentence-transformers, retrieval]
+    hf_tasks: [sentence-similarity, feature-extraction]
+    auto_download_default: true
+  LLM:
+    description: General chat, instruct, reasoning, and text-generation language models.
+    search_terms: [instruct, chat, reasoning, language model]
+    hf_tasks: [text-generation]
+    preferred_formats: [GGUF, safetensors]
+    auto_download_default: false
+  Multimodal:
+    description: Vision-language and multimodal models, including VLMs and document understanding when not pure OCR.
+    search_terms: [vision language, multimodal, VLM, image-text-to-text]
+    hf_tasks: [image-text-to-text, visual-question-answering]
+    auto_download_default: false
+  RAG:
+    description: RAG workflow bundles, pipelines, experiments, and composition notes; not the default home for embedding/reranker weights.
+    subfolders: [Bundles, Pipelines, Experimental]
+    auto_download_default: false
+  Rerankers:
+    description: Cross-encoders and rerankers used to improve retrieval quality.
+    search_terms: [reranker, reranking, cross encoder]
+    hf_tasks: [text-classification, sentence-similarity]
+    auto_download_default: true
+  Safety-Moderation:
+    description: Moderation, guardrail, toxicity, NSFW, prompt-injection, and policy classifiers.
+    search_terms: [moderation, safety, toxicity, guardrail, prompt injection, nsfw]
+    hf_tasks: [text-classification, image-classification]
+    auto_download_default: false
+  Speech-STT:
+    description: Speech-to-text, ASR, transcription, translation, and diarisation models.
+    search_terms: [whisper, ASR, speech recognition, transcription, diarization]
+    hf_tasks: [automatic-speech-recognition]
+    auto_download_default: false
+  Speech-TTS:
+    description: Text-to-speech, voice generation, voice cloning, and speech synthesis models.
+    search_terms: [text to speech, TTS, voice cloning, speech synthesis]
+    hf_tasks: [text-to-speech]
+    auto_download_default: false
+  Time-Series:
+    description: Forecasting, anomaly detection, and sequence/time-series models.
+    search_terms: [time series, forecasting, anomaly detection]
+    hf_tasks: [time-series-forecasting]
+    auto_download_default: false
+  Video:
+    description: Video generation, video editing, image-to-video, and video understanding models.
+    search_terms: [video generation, image to video, text to video, video understanding]
+    hf_tasks: [text-to-video, image-to-video, video-classification]
+    auto_download_default: false
+  Vision-OCR:
+    description: OCR, document extraction, table extraction, PDF/image text extraction.
+    search_terms: [OCR, document understanding, table extraction, PDF extraction]
+    hf_tasks: [image-to-text, document-question-answering]
+    auto_download_default: false
+
+archive_subfolders:
+  - LLM
+  - Coding
+  - Multimodal
+  - Diffusion-Image
+  - Video
+  - Audio
+  - Speech-STT
+  - Speech-TTS
+  - Embeddings
+  - Rerankers
+  - Vision-OCR
+  - Computer-Vision
+  - Agents-ToolUse
+  - Safety-Moderation
+  - Time-Series
+  - Datasets-Model-Assets
+  - Research-Snapshots
+  - Unsorted-Pending-Review
+
+trusted_orgs:
+  - Qwen
+  - deepseek-ai
+  - mistralai
+  - meta-llama
+  - google
+  - moonshotai
+  - microsoft
+  - nvidia
+  - NousResearch
+  - BAAI
+  - Alibaba-NLP
+  - THUDM
+  - CohereForAI
+  - jinaai
+  - nomic-ai
+  - BAAI
+  - black-forest-labs
+  - stabilityai
+  - Tencent
+  - ByteDance
+  - OpenGVLab
+  - internlm
+  - sentence-transformers
+  - microsoft
+  - openai
+
+recommendation_thresholds:
+  download_now_score: 70
+  watch_score: 45
+  archive_score: 75
+
+release_radar:
+  daily:
+    purpose: Major/high-confidence release alerts only.
+    max_items: 10
+  weekly:
+    purpose: Full category digest with Download Now, Watch, Archive, Ignore outcomes.
+    max_items_per_category: 8
+  monthly:
+    purpose: Installed library review for replacements, archive candidates, cleanup, and missing coverage.

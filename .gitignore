@@ -10,5 +10,6 @@ venv/
 
 # Data / generated outputs
 outputs/
+reports/
 data/raw/
 *.log
