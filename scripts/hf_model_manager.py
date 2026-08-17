@@ -19,6 +19,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
 
+# The model library is an SMB-mounted share. Hugging Face's Xet backend can hit
+# file reconstruction I/O errors on SMB targets, so prefer standard/transfer
+# downloads unless the caller explicitly overrides this environment variable.
+os.environ.setdefault("HF_HUB_DISABLE_XET", "1")
+
 import yaml
 from huggingface_hub import HfApi, model_info, snapshot_download, whoami
 from huggingface_hub.errors import GatedRepoError, HfHubHTTPError, RepositoryNotFoundError
