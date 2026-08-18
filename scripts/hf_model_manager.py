@@ -363,13 +363,32 @@ def cmd_research(args: argparse.Namespace) -> None:
         print(f"  {outcome}: {sum(1 for c in candidates if c.recommendation == outcome)}")
 
 
+def snapshot_size_gib(info: Any) -> float | None:
+    siblings = getattr(info, "siblings", None) or []
+    sizes = [getattr(s, "size", None) for s in siblings]
+    known = [s for s in sizes if isinstance(s, int)]
+    if not known:
+        return None
+    return sum(known) / 1024**3
+
+
+def copy_tree_contents(src: Path, dst: Path) -> None:
+    dst.mkdir(parents=True, exist_ok=True)
+    for item in src.iterdir():
+        target = dst / item.name
+        if item.is_dir():
+            shutil.copytree(item, target, dirs_exist_ok=True)
+        else:
+            shutil.copy2(item, target)
+
+
 def cmd_download(args: argparse.Namespace) -> None:
     cfg = load_config(args.config)
     root = Path(cfg["model_root"])
     ensure_mount(root)
     repo_id = args.repo_id
     try:
-        info = model_info(repo_id)
+        info = model_info(repo_id, files_metadata=True)
     except RepositoryNotFoundError as e:
         raise SystemExit(f"Repository not found or inaccessible: {repo_id}\n{e}")
     except HfHubHTTPError as e:
@@ -396,10 +415,24 @@ def cmd_download(args: argparse.Namespace) -> None:
     if target.exists() and not args.resume:
         raise SystemExit(f"Target already exists: {target}. Use --resume to continue/update.")
 
+    size_gib = snapshot_size_gib(info)
+    target_has_partial = target.exists() and not (target / "_hermes_model_metadata.json").exists()
+    use_staging = False
+    download_dir = target
+    staging_root = Path(args.staging_dir).expanduser() if args.staging_dir else None
+    if staging_root and not (args.repair_direct_to_target and target_has_partial):
+        if size_gib is not None and size_gib <= args.local_staging_threshold_gib:
+            use_staging = True
+            download_dir = staging_root / safe_folder_name(repo_id)
+
     print(f"Repo: {repo_id}")
     print(f"Category: {category}")
     print(f"Gated: {gated}")
+    print(f"Estimated size: {size_gib:.2f} GiB" if size_gib is not None else "Estimated size: unknown")
     print(f"Target: {target}")
+    print(f"Download dir: {download_dir}")
+    print(f"Use local staging: {use_staging}")
+    print(f"Max workers: {args.max_workers}")
     print(f"Allow patterns: {args.allow_pattern or '[all files]'}")
     print(f"Ignore patterns: {args.ignore_pattern or '[none]'}")
     if not args.execute:
@@ -407,13 +440,14 @@ def cmd_download(args: argparse.Namespace) -> None:
         return
 
     os.environ.setdefault("HF_HUB_ENABLE_HF_TRANSFER", "1")
-    target.mkdir(parents=True, exist_ok=True)
+    download_dir.mkdir(parents=True, exist_ok=True)
     try:
         snapshot_download(
             repo_id=repo_id,
-            local_dir=target,
+            local_dir=download_dir,
             allow_patterns=args.allow_pattern,
             ignore_patterns=args.ignore_pattern,
+            max_workers=args.max_workers,
         )
     except GatedRepoError as e:
         raise SystemExit(f"Gated repository access failed. Approve on HF first: https://huggingface.co/{repo_id}\n{e}")
@@ -428,8 +462,20 @@ def cmd_download(args: argparse.Namespace) -> None:
         "url": f"https://huggingface.co/{repo_id}",
         "allow_patterns": args.allow_pattern,
         "ignore_patterns": args.ignore_pattern,
+        "estimated_size_gib": size_gib,
+        "used_local_staging": use_staging,
+        "download_dir": str(download_dir),
+        "max_workers": args.max_workers,
     }
-    (target / "_hermes_model_metadata.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
+    if use_staging:
+        print(f"Copying staged download to final target: {target}")
+        copy_tree_contents(download_dir, target)
+        (target / "_hermes_model_metadata.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
+        if not args.keep_staging:
+            print(f"Removing staging dir: {download_dir}")
+            shutil.rmtree(download_dir)
+    else:
+        (target / "_hermes_model_metadata.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
     print(f"Download complete: {target}")
 
 
@@ -464,6 +510,11 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--ignore-pattern", action="append", default=["*.msgpack", "*.h5"], help="hf snapshot ignore pattern; repeatable")
     s.add_argument("--confirm-gated-access", action="store_true", help="Assert the user has approved this gated model on Hugging Face")
     s.add_argument("--resume", action="store_true", help="Allow downloading into an existing target folder")
+    s.add_argument("--staging-dir", help="Optional local staging directory. If set and the model fits the threshold, download here first, then copy to final target.")
+    s.add_argument("--local-staging-threshold-gib", type=float, default=120.0, help="Use local staging only when the estimated snapshot size is <= this value. Default: 120 GiB")
+    s.add_argument("--repair-direct-to-target", action="store_true", help="If the final target already has partial files, resume directly there instead of using staging.")
+    s.add_argument("--keep-staging", action="store_true", help="Do not remove local staging after a successful copy to the model share.")
+    s.add_argument("--max-workers", type=int, default=2, help="Hugging Face download worker count. Lower is slower but more reliable. Default: 2")
     s.add_argument("--execute", action="store_true", help="Actually download; otherwise dry-run")
     s.set_defaults(func=cmd_download)
     return p
