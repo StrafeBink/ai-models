@@ -241,3 +241,38 @@ Key outputs:
 - Serving map now identifies first candidates for chat/reasoning, coding, embeddings, prompt safety, STT, OCR, image, video, and audio.
 - Replacement review identifies benchmark-before-delete candidates such as `whisper-large-v2`, older Llama archive models, older embedding variants, and `stable-diffusion-3-medium`.
 - Runtime readiness report confirms the current manager venv is still deliberately lightweight; heavy inference runtimes such as `transformers`, `torch`, `sentence_transformers`, `llama_cpp`, `whisper`, and `faster_whisper` are not installed yet.
+
+## 2026-08-21 — Reframed capability layer for separate AI box
+
+Clarified the project operating model: this Mac/repo is the verified model library and file server; selected models are manually copied to a separate AI box for execution.
+
+Updated the capability report generator to focus on transfer/handoff rather than local runtime installation on the file server:
+
+```text
+scripts/generate_capability_reports.py
+```
+
+Current durable decision docs:
+
+```text
+docs/MODEL_CAPABILITY_INDEX.md
+docs/AI_BOX_TRANSFER_PRIORITY.md
+docs/MODEL_STORAGE_DASHBOARD.md
+docs/MODEL_REPLACEMENT_REVIEW.md
+docs/AI_BOX_SERVING_MAP.md
+docs/AI_BOX_HANDOFF_GUIDE.md
+```
+
+Removed/replaced earlier file-server runtime-oriented docs:
+
+```text
+docs/LOCAL_SERVING_MAP.md
+docs/RUNTIME_SMOKE_TEST_READINESS.md
+```
+
+Key framing changes:
+
+- File server remains focused on discovery, downloads, metadata, verification, storage, and transfer guidance.
+- AI-box docs identify what to copy first and what runtime family the AI box needs.
+- Transfer priority now separates `high`, `medium`, `review`, and `archive_only` models.
+- Strategic archives such as `Kimi-K3` are explicitly marked as keep-on-file-server unless a specific future-hardware test requires transfer.

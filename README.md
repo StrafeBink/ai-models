@@ -1,18 +1,18 @@
 # AI Models
 
-Project workspace for AI model research, comparison, experiments, notes, and implementation work.
+Project workspace for AI model research, verified file-server storage, curation, AI-box transfer guidance, and implementation notes.
 
 ## Purpose
 
 Use this repository to collect and develop work related to AI models, including:
 
 - model comparisons and evaluations
-- prompt and agent experiments
-- local/cloud model notes
-- benchmarking ideas
+- file-server model library curation
+- AI-box transfer priority and handoff notes
+- benchmarking ideas and results from the separate AI box
 - tooling and scripts
 - implementation notes and project decisions
-- Hugging Face model research, download approval, sorting, and archive workflows
+- Hugging Face model research, download approval, sorting, verification, and archive workflows
 
 ## Current model library
 
@@ -22,17 +22,9 @@ The live model library is mounted on the Mac Mini at:
 /Users/davideddy/mnt/models
 ```
 
-The backing SMB share is:
+The backing SMB share details are environment-specific and intentionally not documented with credentials here.
 
-```text
-//GUEST:@192.168.1.6/models
-```
-
-If the Mac Mini has rebooted and the folder appears empty, remount it with:
-
-```bash
-mount_smbfs //GUEST:@192.168.1.6/models /Users/davideddy/mnt/models
-```
+If the Mac Mini has rebooted and the folder appears empty, remount the SMB model share using the known local/private connection details, then verify the mount before moving or downloading models.
 
 ## Taxonomy
 
@@ -188,13 +180,14 @@ Durable docs are kept in:
 
 ```text
 docs/MODEL_CAPABILITY_INDEX.md
+docs/AI_BOX_TRANSFER_PRIORITY.md
 docs/MODEL_STORAGE_DASHBOARD.md
 docs/MODEL_REPLACEMENT_REVIEW.md
-docs/LOCAL_SERVING_MAP.md
-docs/RUNTIME_SMOKE_TEST_READINESS.md
+docs/AI_BOX_SERVING_MAP.md
+docs/AI_BOX_HANDOFF_GUIDE.md
 ```
 
-These reports answer: what each model is for, which models are runnable with installed runtime support, what to use for each capability, what may be superseded, and where storage is concentrated.
+These reports answer: what each verified model is for, which models are worth manually copying to the separate AI box, what runtime family the AI box will need, what may be superseded, and where file-server storage is concentrated.
 
 ### Research Hugging Face models
 
