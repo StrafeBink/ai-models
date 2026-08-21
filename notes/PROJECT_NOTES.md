@@ -84,3 +84,24 @@ Verified recovery:
 - Final verified size: `17G`.
 - Final verified payload files excluding `.cache`: `18`.
 - Bad partial and local staging copies were deleted after verification.
+
+## 2026-08-21 — Gated plan cleanup
+
+Completed the remaining gated-plan category corrections:
+
+- `meta-llama/Prompt-Guard-86M` belongs under `Safety-Moderation/Prompt-Guard-86M`, not `Embeddings/`.
+- Stable Video Diffusion belongs under `Video/`, not `Diffusion-Image/`.
+- Stable Audio 3 Medium and Stable Audio 3 Small SFX belong under `Audio/`, not `Diffusion-Image/`.
+
+Operational result:
+
+- `reports/gated-download-plan.json` was locally updated so all 19 gated-plan entries now point to complete verified targets.
+- `Prompt-Guard-86M` is installed at:
+
+```text
+/Users/davideddy/mnt/models/Safety-Moderation/Prompt-Guard-86M
+```
+
+- Verified Prompt Guard target size: `1.1G`.
+- Verified Prompt Guard payload files excluding `.cache`: `12`.
+- Local staging remained empty after the skip-complete verification.
