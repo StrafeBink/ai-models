@@ -335,6 +335,19 @@ def write_runtime_readiness() -> None:
     out.write_text("\n".join(lines), encoding="utf-8")
 
 
+def sync_durable_docs() -> None:
+    """Copy selected generated reports into docs/ so they are committed."""
+    DOCS.mkdir(exist_ok=True)
+    copies = {
+        REPORTS / "model-capability-index.md": DOCS / "MODEL_CAPABILITY_INDEX.md",
+        REPORTS / "model-storage-dashboard.md": DOCS / "MODEL_STORAGE_DASHBOARD.md",
+        REPORTS / "model-replacement-review.md": DOCS / "MODEL_REPLACEMENT_REVIEW.md",
+        REPORTS / "runtime-smoke-test-readiness.md": DOCS / "RUNTIME_SMOKE_TEST_READINESS.md",
+    }
+    for src, dst in copies.items():
+        dst.write_text(src.read_text(encoding="utf-8"), encoding="utf-8")
+
+
 def main() -> int:
     cards = [classify(r) for r in load_models()]
     write_capability_index(cards)
@@ -342,11 +355,16 @@ def main() -> int:
     write_replacement_review(cards)
     write_serving_map(cards)
     write_runtime_readiness()
+    sync_durable_docs()
     print("Wrote reports/model-capability-index.md")
+    print("Wrote docs/MODEL_CAPABILITY_INDEX.md")
     print("Wrote reports/model-storage-dashboard.md")
+    print("Wrote docs/MODEL_STORAGE_DASHBOARD.md")
     print("Wrote reports/model-replacement-review.md")
+    print("Wrote docs/MODEL_REPLACEMENT_REVIEW.md")
     print("Wrote docs/LOCAL_SERVING_MAP.md")
     print("Wrote reports/runtime-smoke-test-readiness.md")
+    print("Wrote docs/RUNTIME_SMOKE_TEST_READINESS.md")
     return 0
 
 
