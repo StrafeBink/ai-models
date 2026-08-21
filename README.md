@@ -183,6 +183,38 @@ For gated models, first approve access on the Hugging Face website, then run wit
 python scripts/hf_model_manager.py download meta-llama/Llama-3.1-8B-Instruct --category LLM --confirm-gated-access --execute
 ```
 
+### Hybrid local-staging downloads for SMB reliability
+
+For large or fragile downloads, use local staging first and then copy to the
+mounted model share. On macOS/SMB, the manager defaults to an SMB-friendly copy
+method that avoids rsync temp-file rename failures:
+
+```bash
+python scripts/hf_model_manager.py download stabilityai/stable-video-diffusion-img2vid-xt-1-1 \
+  --category Video \
+  --confirm-gated-access \
+  --staging-dir download-staging \
+  --local-staging-threshold-gib 120 \
+  --staging-copy-method rsync-inplace \
+  --max-workers 1 \
+  --execute
+```
+
+The reusable copy workflow uses:
+
+```bash
+COPYFILE_DISABLE=1 rsync -rt --inplace --progress --exclude '.cache/' <staging>/ <target>/
+```
+
+and then verifies the source/destination payload file lists, excluding optional
+Hugging Face `.cache` transfer metadata.
+
+Use the combined repair runner for a reviewed repair plan:
+
+```bash
+python scripts/run_hybrid_repair_plan.py
+```
+
 ## Safety defaults
 
 - Research is read-only.
@@ -193,4 +225,6 @@ python scripts/hf_model_manager.py download meta-llama/Llama-3.1-8B-Instruct --c
 
 ## Status
 
-Initial model research/download/sorting framework implemented by Hermes.
+Model research/download/sorting framework implemented by Hermes. Current
+workflow includes hybrid local-staging downloads with SMB-friendly in-place copy
+verification for fragile large model transfers.

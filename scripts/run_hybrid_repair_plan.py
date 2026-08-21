@@ -4,6 +4,8 @@
 Policy:
 - Use the final mounted target directly for partial repair (`--repair-direct-to-target`).
 - Use local staging for clean models that fit the threshold.
+- Copy completed staging downloads to SMB with the reusable `rsync --inplace`
+  workflow built into `hf_model_manager.py`.
 - Use low concurrency and retry transient failures.
 """
 from __future__ import annotations
@@ -55,6 +57,7 @@ def main() -> int:
                 "--staging-dir", str(STAGING),
                 "--local-staging-threshold-gib", "120",
                 "--repair-direct-to-target",
+                "--staging-copy-method", "rsync-inplace",
                 "--max-workers", "1",
             ]
             if archive:

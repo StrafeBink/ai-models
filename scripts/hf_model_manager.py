@@ -11,8 +11,10 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import platform
 import re
 import shutil
+import subprocess
 import sys
 from dataclasses import dataclass, asdict
 from datetime import datetime, timezone
@@ -382,6 +384,73 @@ def copy_tree_contents(src: Path, dst: Path) -> None:
             shutil.copy2(item, target)
 
 
+def payload_files(root: Path, *, exclude_cache: bool = True) -> set[str]:
+    files: set[str] = set()
+    for path in root.rglob("*"):
+        if not path.is_file():
+            continue
+        rel = path.relative_to(root)
+        if exclude_cache and ".cache" in rel.parts:
+            continue
+        files.add(str(rel))
+    return files
+
+
+def verify_payload_copy(src: Path, dst: Path, *, exclude_cache: bool = True) -> None:
+    src_files = payload_files(src, exclude_cache=exclude_cache)
+    dst_files = payload_files(dst, exclude_cache=exclude_cache)
+    missing = sorted(src_files - dst_files)
+    extra = sorted(dst_files - src_files)
+    print(f"Source payload files: {len(src_files)}")
+    print(f"Destination payload files: {len(dst_files)}")
+    if missing or extra:
+        preview = {
+            "missing_in_destination": missing[:20],
+            "extra_in_destination": extra[:20],
+            "missing_count": len(missing),
+            "extra_count": len(extra),
+        }
+        raise SystemExit("Payload verification failed:\n" + json.dumps(preview, indent=2))
+    print("Payload verification: OK")
+
+
+def rsync_inplace_copy(src: Path, dst: Path, *, exclude_cache: bool = True) -> None:
+    """Copy staged payload to a mounted target using SMB-friendly rsync flags.
+
+    macOS ships an old rsync/openrsync. Avoid --info=progress2 and avoid the
+    default temp-file rename path that can fail on SMB with dot-file permission
+    errors. --inplace writes directly to the destination file, and .cache is
+    optional Hugging Face transfer metadata that does not need to live on the
+    model share.
+    """
+    dst.mkdir(parents=True, exist_ok=True)
+    env = os.environ.copy()
+    env.setdefault("COPYFILE_DISABLE", "1")
+    cmd = ["rsync", "-rt", "--inplace", "--progress"]
+    if exclude_cache:
+        cmd += ["--exclude", ".cache/"]
+    cmd += [str(src) + "/", str(dst) + "/"]
+    print("Rsync staged payload to final target:")
+    print("CMD: " + " ".join(cmd))
+    subprocess.run(cmd, cwd=REPO_ROOT, env=env, check=True)
+
+
+def copy_staged_to_target(src: Path, dst: Path, args: argparse.Namespace) -> None:
+    method = args.staging_copy_method
+    if method == "auto":
+        # SMB-mounted targets on macOS are more reliable with rsync --inplace
+        # than shutil/copytree or rsync's default temp-file rename behaviour.
+        method = "rsync-inplace" if platform.system() == "Darwin" else "shutil"
+    print(f"Staging copy method: {method}")
+    if method == "rsync-inplace":
+        rsync_inplace_copy(src, dst, exclude_cache=args.exclude_staging_cache)
+    elif method == "shutil":
+        copy_tree_contents(src, dst)
+    else:
+        raise SystemExit(f"Unknown staging copy method: {method}")
+    verify_payload_copy(src, dst, exclude_cache=args.exclude_staging_cache)
+
+
 def cmd_download(args: argparse.Namespace) -> None:
     cfg = load_config(args.config)
     root = Path(cfg["model_root"])
@@ -465,17 +534,18 @@ def cmd_download(args: argparse.Namespace) -> None:
         "estimated_size_gib": size_gib,
         "used_local_staging": use_staging,
         "download_dir": str(download_dir),
+        "target": str(target),
         "max_workers": args.max_workers,
+        "staging_copy_method": args.staging_copy_method if use_staging else None,
+        "excluded_staging_cache_from_target": args.exclude_staging_cache if use_staging else None,
     }
+    (download_dir / "_hermes_model_metadata.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
     if use_staging:
         print(f"Copying staged download to final target: {target}")
-        copy_tree_contents(download_dir, target)
-        (target / "_hermes_model_metadata.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
+        copy_staged_to_target(download_dir, target, args)
         if not args.keep_staging:
             print(f"Removing staging dir: {download_dir}")
             shutil.rmtree(download_dir)
-    else:
-        (target / "_hermes_model_metadata.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
     print(f"Download complete: {target}")
 
 
@@ -514,6 +584,9 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--local-staging-threshold-gib", type=float, default=120.0, help="Use local staging only when the estimated snapshot size is <= this value. Default: 120 GiB")
     s.add_argument("--repair-direct-to-target", action="store_true", help="If the final target already has partial files, resume directly there instead of using staging.")
     s.add_argument("--keep-staging", action="store_true", help="Do not remove local staging after a successful copy to the model share.")
+    s.add_argument("--staging-copy-method", choices=["auto", "rsync-inplace", "shutil"], default="auto", help="How to copy a completed local staging download to the final target. auto uses SMB-friendly rsync --inplace on macOS. Default: auto")
+    s.add_argument("--include-staging-cache", dest="exclude_staging_cache", action="store_false", help="Also copy Hugging Face .cache metadata from staging. Default excludes .cache from final model-share targets.")
+    s.set_defaults(exclude_staging_cache=True)
     s.add_argument("--max-workers", type=int, default=2, help="Hugging Face download worker count. Lower is slower but more reliable. Default: 2")
     s.add_argument("--execute", action="store_true", help="Actually download; otherwise dry-run")
     s.set_defaults(func=cmd_download)
