@@ -483,6 +483,10 @@ def cmd_download(args: argparse.Namespace) -> None:
 
     if target.exists() and not args.resume:
         raise SystemExit(f"Target already exists: {target}. Use --resume to continue/update.")
+    if target.exists() and (target / "_hermes_model_metadata.json").exists() and not args.force_update:
+        print(f"Target already has Hermes metadata; assuming complete: {target}")
+        print("Use --force-update with --resume to refresh/re-download this target.")
+        return
 
     size_gib = snapshot_size_gib(info)
     target_has_partial = target.exists() and not (target / "_hermes_model_metadata.json").exists()
@@ -580,6 +584,7 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--ignore-pattern", action="append", default=["*.msgpack", "*.h5"], help="hf snapshot ignore pattern; repeatable")
     s.add_argument("--confirm-gated-access", action="store_true", help="Assert the user has approved this gated model on Hugging Face")
     s.add_argument("--resume", action="store_true", help="Allow downloading into an existing target folder")
+    s.add_argument("--force-update", action="store_true", help="With --resume, update an existing target even when Hermes metadata indicates it is already complete.")
     s.add_argument("--staging-dir", help="Optional local staging directory. If set and the model fits the threshold, download here first, then copy to final target.")
     s.add_argument("--local-staging-threshold-gib", type=float, default=120.0, help="Use local staging only when the estimated snapshot size is <= this value. Default: 120 GiB")
     s.add_argument("--repair-direct-to-target", action="store_true", help="If the final target already has partial files, resume directly there instead of using staging.")

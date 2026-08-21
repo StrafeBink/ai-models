@@ -209,6 +209,11 @@ COPYFILE_DISABLE=1 rsync -rt --inplace --progress --exclude '.cache/' <staging>/
 and then verifies the source/destination payload file lists, excluding optional
 Hugging Face `.cache` transfer metadata.
 
+When `--resume` points at a target that already contains
+`_hermes_model_metadata.json`, the manager treats it as complete and skips it
+unless `--force-update` is supplied. This prevents repair runs from re-opening
+already verified SMB targets.
+
 Use the combined repair runner for a reviewed repair plan:
 
 ```bash

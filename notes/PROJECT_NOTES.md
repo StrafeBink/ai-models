@@ -70,6 +70,7 @@ Implemented:
   - `--include-staging-cache` if Hugging Face cache metadata must also be copied
 - On macOS, `auto` selects the SMB-friendly `rsync-inplace` method.
 - `scripts/run_hybrid_repair_plan.py` now explicitly uses `--staging-copy-method rsync-inplace`.
+- `--resume` now skips targets that already contain `_hermes_model_metadata.json` unless `--force-update` is supplied, preventing repair runs from re-opening verified SMB targets.
 - The one-off `scripts/download_stable_video_to_staging.py` recovery script was removed after its workflow was generalised.
 
 Verified recovery:
