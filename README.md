@@ -136,6 +136,22 @@ python scripts/hf_model_manager.py init-dirs
 python scripts/hf_model_manager.py scan-library
 ```
 
+### Audit local library structure and metadata
+
+For a deeper verification of folder names, metadata, category placement,
+duplicates, suspicious partial folders, sizes, and payload file counts:
+
+```bash
+python scripts/audit_model_library.py --label manual
+```
+
+Reports are written to:
+
+```text
+reports/model-library-audit-<label>-<timestamp>.json
+reports/model-library-audit-<label>-<timestamp>.md
+```
+
 ### Research Hugging Face models
 
 Research all active categories:

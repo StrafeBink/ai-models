@@ -105,3 +105,44 @@ Operational result:
 - Verified Prompt Guard target size: `1.1G`.
 - Verified Prompt Guard payload files excluding `.cache`: `12`.
 - Local staging remained empty after the skip-complete verification.
+
+## 2026-08-21 — Full library cleanup and verification
+
+Ran a full structural audit of the mounted model library and then cleaned up all reported issues.
+
+Initial audit result:
+
+```text
+Audited folders: 52
+Folders with issues: 18
+Missing Hermes metadata: 17
+Duplicate repo IDs: 0
+```
+
+Cleanup actions:
+
+- Added `_hermes_model_metadata.json` to legacy/manual model folders that were missing Hermes metadata.
+- Renamed clear Hugging Face slug/case mismatches:
+  - `Diffusion-Image/FLUX.2-Dev` → `Diffusion-Image/FLUX.2-dev`
+  - `Diffusion-Image/FLUX.2-Klein-9B-FP8` → `Diffusion-Image/FLUX.2-klein-9b-fp8`
+- Kept curated quantised local folder names where useful, recording `local_folder_name` in metadata so the audit recognises them as intentional.
+- Added reusable audit tooling:
+
+```text
+scripts/audit_model_library.py
+```
+
+Post-cleanup audit result:
+
+```text
+Audited folders: 52
+Folders with issues: 0
+Missing Hermes metadata: 0
+Duplicate repo IDs: 0
+```
+
+Latest audit report:
+
+```text
+reports/model-library-audit-post-cleanup-20260821-133801Z.md
+```
