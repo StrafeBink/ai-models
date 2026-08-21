@@ -152,6 +152,30 @@ reports/model-library-audit-<label>-<timestamp>.json
 reports/model-library-audit-<label>-<timestamp>.md
 ```
 
+### Verify selected model integrity
+
+For high-value models, compare local payload files against Hugging Face manifests
+without hashing every large weight file:
+
+```bash
+python scripts/verify_model_integrity.py --label high-value
+```
+
+This checks missing files, exact file sizes, size mismatches, and unexpected
+payload files. Curated single-file GGUF folders can be represented with
+`selected_file` metadata and are treated as intentional partial selections.
+
+### Functional smoke tests
+
+Run lightweight structural smoke tests for representative local models:
+
+```bash
+python scripts/smoke_test_models.py --label representative
+```
+
+These tests read JSON configs/tokenizers, GGUF magic headers, and safetensors
+headers without loading full model weights into memory.
+
 ### Research Hugging Face models
 
 Research all active categories:

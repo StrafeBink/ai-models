@@ -146,3 +146,68 @@ Latest audit report:
 ```text
 reports/model-library-audit-post-cleanup-20260821-133801Z.md
 ```
+
+## 2026-08-21 — Integrity checks, smoke tests, and monthly audit cron
+
+Completed the three follow-up verification tasks.
+
+High-value integrity check:
+
+- Added reusable script:
+
+```text
+scripts/verify_model_integrity.py
+```
+
+- Initial run found two repairable issues:
+  - `moonshotai/Kimi-K3`: `encoding_k3.py` size mismatch against Hugging Face.
+  - `sentence-transformers/all-MiniLM-L6-v2`: missing optional `tf_model.h5` payload file.
+- Repaired both by fetching the exact files from Hugging Face and writing them to the mounted model library.
+- Post-repair result:
+
+```text
+Checked models: 7
+Issues: 0
+```
+
+Functional smoke tests:
+
+- Added reusable script:
+
+```text
+scripts/smoke_test_models.py
+```
+
+- Representative tests covered:
+  - MiniLM embeddings
+  - Prompt Guard
+  - Whisper large v3 turbo
+  - GGUF LLM
+  - GGUF coding model
+  - DeepSeek OCR
+  - Stable Video Diffusion
+- Result:
+
+```text
+Tests: 7
+Failures: 0
+```
+
+Monthly audit cron:
+
+- Created Hermes cron job:
+
+```text
+AI Models monthly library audit
+job_id: 6feb34f72bcc
+schedule: 0 9 1 * *
+next_run_at: 2026-09-01T09:00:00+08:00
+```
+
+- Cron script:
+
+```text
+~/.hermes/scripts/model-library-monthly-audit.sh
+```
+
+- The script is silent when the library is clean and sends an alert only if audit issues appear or the audit cannot produce a report.
