@@ -199,7 +199,7 @@ Monthly audit cron:
 
 ```text
 AI Models monthly library audit
-job_id: 6feb34f72bcc
+job_id: 2439cd8f55c0
 schedule: 0 9 1 * *
 next_run_at: 2026-09-01T09:00:00+08:00
 ```
