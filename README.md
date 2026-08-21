@@ -176,6 +176,26 @@ python scripts/smoke_test_models.py --label representative
 These tests read JSON configs/tokenizers, GGUF magic headers, and safetensors
 headers without loading full model weights into memory.
 
+### Capability and operations reports
+
+Generate the human decision layer for the local library:
+
+```bash
+python scripts/generate_capability_reports.py
+```
+
+Durable docs are kept in:
+
+```text
+docs/MODEL_CAPABILITY_INDEX.md
+docs/MODEL_STORAGE_DASHBOARD.md
+docs/MODEL_REPLACEMENT_REVIEW.md
+docs/LOCAL_SERVING_MAP.md
+docs/RUNTIME_SMOKE_TEST_READINESS.md
+```
+
+These reports answer: what each model is for, which models are runnable with installed runtime support, what to use for each capability, what may be superseded, and where storage is concentrated.
+
 ### Research Hugging Face models
 
 Research all active categories:

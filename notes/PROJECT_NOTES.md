@@ -211,3 +211,33 @@ next_run_at: 2026-09-01T09:00:00+08:00
 ```
 
 - The script is silent when the library is clean and sends an alert only if audit issues appear or the audit cannot produce a report.
+
+## 2026-08-21 — Capability and operations layer
+
+Added a decision layer on top of the verified model folders so the project can answer practical questions such as "what should I use for this capability?", "what is archive-only?", and "where is storage concentrated?".
+
+Added generator:
+
+```text
+scripts/generate_capability_reports.py
+```
+
+Generated durable docs:
+
+```text
+docs/MODEL_CAPABILITY_INDEX.md
+docs/MODEL_STORAGE_DASHBOARD.md
+docs/MODEL_REPLACEMENT_REVIEW.md
+docs/LOCAL_SERVING_MAP.md
+docs/RUNTIME_SMOKE_TEST_READINESS.md
+```
+
+Key outputs:
+
+- Total downloaded model folders: `49`.
+- Total measured model storage: `2700.35 GiB` / `2.64 TiB`.
+- Largest concentration: `Archive-Huge/LLM` at `1543.36 GiB` / `57.2%`.
+- Largest model: `Kimi-K3` at `1453.79 GiB`, marked as strategic archive.
+- Serving map now identifies first candidates for chat/reasoning, coding, embeddings, prompt safety, STT, OCR, image, video, and audio.
+- Replacement review identifies benchmark-before-delete candidates such as `whisper-large-v2`, older Llama archive models, older embedding variants, and `stable-diffusion-3-medium`.
+- Runtime readiness report confirms the current manager venv is still deliberately lightweight; heavy inference runtimes such as `transformers`, `torch`, `sentence_transformers`, `llama_cpp`, `whisper`, and `faster_whisper` are not installed yet.
