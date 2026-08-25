@@ -69,7 +69,7 @@ def ensure_mount(model_root: Path) -> None:
     if missing:
         raise SystemExit(
             f"Model root is reachable but does not look like the mounted library. Missing: {missing}. "
-            f"If the Mac rebooted, remount with: mount_smbfs //GUEST:@192.168.1.6/models {model_root}"
+            f"If the Mac rebooted, remount the configured/private SMB model share at {model_root}, then rerun status."
         )
 
 

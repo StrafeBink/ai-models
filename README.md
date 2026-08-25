@@ -181,6 +181,7 @@ Durable docs are kept in:
 ```text
 docs/MODEL_CAPABILITY_INDEX.md
 docs/AI_BOX_TRANSFER_PRIORITY.md
+docs/AI_BOX_BUNDLES.md
 docs/MODEL_STORAGE_DASHBOARD.md
 docs/MODEL_REPLACEMENT_REVIEW.md
 docs/AI_BOX_SERVING_MAP.md
@@ -188,6 +189,28 @@ docs/AI_BOX_HANDOFF_GUIDE.md
 ```
 
 These reports answer: what each verified model is for, which models are worth manually copying to the separate AI box, what runtime family the AI box will need, what may be superseded, and where file-server storage is concentrated.
+
+### AI-box transfer manifests
+
+Generate a dated manual transfer checklist from verified inventory:
+
+```bash
+python scripts/generate_ai_box_transfer_manifest.py --bundle minimal-rag
+```
+
+List available bundles:
+
+```bash
+python scripts/generate_ai_box_transfer_manifest.py --list-bundles
+```
+
+Manifests are written to:
+
+```text
+transfer-manifests/
+```
+
+They include source paths, size, payload file counts, destination placeholders, and post-copy verification checks.
 
 ### Research Hugging Face models
 

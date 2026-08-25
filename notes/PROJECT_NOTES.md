@@ -7,7 +7,7 @@ Use this file for high-level decisions, links, and research notes for the AI Mod
 Decisions:
 
 - Use `/Users/davideddy/mnt/models` as the canonical mounted model library path on the Hermes Mac Mini.
-- Backing SMB share is `//GUEST:@192.168.1.6/models`.
+- Backing SMB share details are private/environment-specific and intentionally not documented with credentials.
 - Current hardware profile: Intel Arc B70; research should separate models that are runnable now from large strategic archive models.
 - Keep a broad Hugging Face taxonomy now so automated downloading and sorting has stable destinations.
 - Keep `RAG/` for bundles/pipelines/experiments rather than raw embedding or reranker weights.
@@ -28,11 +28,7 @@ Hugging Face login:
 
 Operational notes:
 
-- If the Mac Mini reboots and `/Users/davideddy/mnt/models` appears empty, remount with:
-
-```bash
-mount_smbfs //GUEST:@192.168.1.6/models /Users/davideddy/mnt/models
-```
+- If the Mac Mini reboots and `/Users/davideddy/mnt/models` appears empty, remount the configured/private SMB model share at that path, then rerun the status check.
 
 - Research reports are stored in `reports/` and should be reviewed before downloads are approved.
 - Downloads are dry-run unless `--execute` is supplied.
@@ -276,3 +272,47 @@ Key framing changes:
 - AI-box docs identify what to copy first and what runtime family the AI box needs.
 - Transfer priority now separates `high`, `medium`, `review`, and `archive_only` models.
 - Strategic archives such as `Kimi-K3` are explicitly marked as keep-on-file-server unless a specific future-hardware test requires transfer.
+
+## 2026-08-25 — AI-box transfer manifests and bundles
+
+Follow-up improvements added after confirming the Mac is a model file server and the AI box is the execution host.
+
+Daily radar:
+
+- Checked Hermes cron job `22313286443e` / `AI Models - Daily Major Release Radar`.
+- It is currently healthy; latest status was `ok`, next run scheduled for `2026-08-26T07:00:00+08:00`.
+
+Transfer tooling:
+
+- Added manual transfer manifest generator:
+
+```text
+scripts/generate_ai_box_transfer_manifest.py
+```
+
+- It reads the verified model audit and writes dated transfer checklists under:
+
+```text
+transfer-manifests/
+```
+
+- Manifest checklists include source path, suggested AI-box destination placeholder, size, payload file count, metadata verification, and runtime-family hints.
+
+Bundles:
+
+- Added:
+
+```text
+docs/AI_BOX_BUNDLES.md
+```
+
+- Current bundle names:
+  - `minimal-rag`
+  - `coding-assistant`
+  - `speech-and-docs`
+  - `image-generation-small-first`
+  - `llm-comparison`
+
+Security hygiene:
+
+- Redacted the explicit SMB connection string from README and from `hf_model_manager.py` mount-error guidance; docs now refer to configured/private SMB details instead of embedding the connection string.
