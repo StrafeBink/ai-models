@@ -23,9 +23,16 @@ from pathlib import Path
 from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-AUDIT = REPO_ROOT / "reports" / "model-library-audit-post-cleanup-20260821-133801Z.json"
 REPORTS = REPO_ROOT / "reports"
 DOCS = REPO_ROOT / "docs"
+
+
+def latest_audit_path() -> Path:
+    """Return the newest model-library audit JSON report."""
+    reports = sorted(REPORTS.glob("model-library-audit-*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
+    if not reports:
+        raise SystemExit("No model-library audit JSON reports found. Run scripts/audit_model_library.py first.")
+    return reports[0]
 
 
 @dataclass
@@ -46,7 +53,9 @@ class ModelCard:
 
 
 def load_models() -> list[dict[str, Any]]:
-    rows = json.loads(AUDIT.read_text(encoding="utf-8"))
+    audit = latest_audit_path()
+    print(f"Using audit report: {audit}")
+    rows = json.loads(audit.read_text(encoding="utf-8"))
     return [r for r in rows if r.get("scope") != "workflow"]
 
 

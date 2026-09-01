@@ -6,13 +6,14 @@ Use this when deciding what to manually copy from the file-server library to the
 
 | Model | Capability | Size | AI-box runtime | Why copy / why keep |
 |---|---|---:|---|---|
-| `all-MiniLM-L6-v2` | Embeddings / retrieval | 0.83 GiB | sentence-transformers/transformers on AI box; GGUF embedding runtime for GGUF quants. | Copy small baseline first; benchmark retrieval quality before choosing the default embedding model. |
+| `all-MiniLM-L6-v2` | Embeddings / retrieval | 0.91 GiB | sentence-transformers/transformers on AI box; GGUF embedding runtime for GGUF quants. | Copy small baseline first; benchmark retrieval quality before choosing the default embedding model. |
 | `Prompt-Guard-86M` | Prompt safety / moderation | 1.05 GiB | transformers sequence-classification on AI box. | Strong default safety guardrail candidate; small transfer. |
 | `whisper-large-v3-turbo` | Speech-to-text | 1.51 GiB | faster-whisper preferred; transformers fallback on AI box. | Transfer v3-turbo first; keep v2 only if AI-box accuracy tests justify it. |
 | `all-mpnet-base-v2` | Embeddings / retrieval | 3.56 GiB | sentence-transformers/transformers on AI box; GGUF embedding runtime for GGUF quants. | Copy small baseline first; benchmark retrieval quality before choosing the default embedding model. |
 | `FLUX.2-klein-9b-fp8` | Image generation/editing | 8.79 GiB | ComfyUI or diffusers on AI box. | Transfer smaller/fast variants before huge full models unless a workflow needs them. |
 | `Ministral-3-14B-Q5_K_M` | LLM / reasoning-chat | 8.96 GiB | llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archives. | Benchmark tokens/sec and answer quality on the AI box before setting defaults. |
 | `paraphrase-multilingual-mpnet-base-v2` | Embeddings / retrieval | 9.07 GiB | sentence-transformers/transformers on AI box; GGUF embedding runtime for GGUF quants. | Copy small baseline first; benchmark retrieval quality before choosing the default embedding model. |
+| `Qwen2.5-Coder-14B-Instruct-AWQ` | Coding LLM | 9.31 GiB | llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archive. | GGUF quants are likely the most useful current AI-box transfer candidates. |
 | `Qwen3-Coder-30B-A3B-UD-Q4_K_XL` | Coding LLM | 16.45 GiB | llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archive. | GGUF quants are likely the most useful current AI-box transfer candidates. |
 | `GLM-4.7-Flash-Q4_K_M` | LLM / reasoning-chat | 17.21 GiB | llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archives. | Benchmark tokens/sec and answer quality on the AI box before setting defaults. |
 | `Qwen3.6-35B-A3B-UD-Q4_K_M` | LLM / reasoning-chat | 20.61 GiB | llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archives. | Benchmark tokens/sec and answer quality on the AI box before setting defaults. |
@@ -30,6 +31,7 @@ Use this when deciding what to manually copy from the file-server library to the
 |---|---|---:|---|---|
 | `embeddinggemma-300m` | Embeddings / retrieval | 1.18 GiB | sentence-transformers/transformers on AI box; GGUF embedding runtime for GGUF quants. | Copy small baseline first; benchmark retrieval quality before choosing the default embedding model. |
 | `all-MiniLM-L12-v2` | Embeddings / retrieval | 1.21 GiB | sentence-transformers/transformers on AI box; GGUF embedding runtime for GGUF quants. | Copy small baseline first; benchmark retrieval quality before choosing the default embedding model. |
+| `Qwen3-0.6B` | LLM / reasoning-chat | 1.41 GiB | llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archives. | Benchmark tokens/sec and answer quality on the AI box before setting defaults. |
 | `stable-audio-3-small-sfx` | Audio generation / audio model | 3.25 GiB | Model-specific audio/diffusers stack on AI box. | Needs model-specific AI-box generation smoke test. |
 | `paraphrase-multilingual-MiniLM-L12-v2` | Embeddings / retrieval | 3.87 GiB | sentence-transformers/transformers on AI box; GGUF embedding runtime for GGUF quants. | Copy small baseline first; benchmark retrieval quality before choosing the default embedding model. |
 | `Qwen3-Embedding-8B-Q4_K_M` | Embeddings / retrieval | 4.36 GiB | sentence-transformers/transformers on AI box; GGUF embedding runtime for GGUF quants. | Copy small baseline first; benchmark retrieval quality before choosing the default embedding model. |

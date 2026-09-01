@@ -316,3 +316,30 @@ docs/AI_BOX_BUNDLES.md
 Security hygiene:
 
 - Redacted the explicit SMB connection string from README and from `hf_model_manager.py` mount-error guidance; docs now refer to configured/private SMB details instead of embedding the connection string.
+
+## 2026-09-01 — Qwen smoke/coding additions
+
+Downloaded and verified two approved Watch-list models:
+
+```text
+LLM/Qwen3-0.6B
+Coding/Qwen2.5-Coder-14B-Instruct-AWQ
+```
+
+Verification:
+
+- `Qwen3-0.6B`: metadata present, 11 payload files, 1.41 GiB.
+- `Qwen2.5-Coder-14B-Instruct-AWQ`: metadata present, 14 payload files, 9.31 GiB.
+- Local `download-staging/` was empty after cleanup.
+- Post-download audit: 54 folders, 0 issues.
+- Regenerated AI-box capability/priority/storage docs from the newest audit report.
+- Generated manual AI-box transfer manifest:
+
+```text
+transfer-manifests/ai-box-transfer-qwen-new-downloads-20260901-172543Z.md
+```
+
+Script maintenance:
+
+- `scripts/generate_capability_reports.py` now uses the newest `reports/model-library-audit-*.json` instead of a fixed historical audit path.
+- `scripts/generate_ai_box_transfer_manifest.py` also uses the newest audit report and now gives clearer runtime hints for LLM/Coding safetensors, AWQ, GGUF, and Qwen-style models.

@@ -1,31 +1,31 @@
 # Model Storage Dashboard
 
-- Total downloaded model folders: `49`
-- Total measured size: `2700.35 GiB` (`2.64 TiB`)
+- Total downloaded model folders: `51`
+- Total measured size: `2711.16 GiB` (`2.65 TiB`)
 - Role: file-server storage for models that are manually copied to the AI box as needed.
 
 ## Size by transfer priority
 
 | Transfer priority | Size | Share |
 |---|---:|---:|
-| `high` | 339.87 GiB | 12.6% |
-| `medium` | 610.40 GiB | 22.6% |
+| `high` | 349.26 GiB | 12.9% |
+| `medium` | 611.82 GiB | 22.6% |
 | `review` | 0.00 GiB | 0.0% |
-| `archive_only` | 1750.08 GiB | 64.8% |
+| `archive_only` | 1750.08 GiB | 64.6% |
 
 ## Size by location
 
 | Location | Size | Share |
 |---|---:|---:|
-| Archive-Huge/LLM | 1543.36 GiB | 57.2% |
-| Diffusion-Image | 562.27 GiB | 20.8% |
-| LLM | 166.43 GiB | 6.2% |
-| Archive-Huge/Multimodal | 120.50 GiB | 4.5% |
+| Archive-Huge/LLM | 1543.36 GiB | 56.9% |
+| Diffusion-Image | 562.27 GiB | 20.7% |
+| LLM | 167.84 GiB | 6.2% |
+| Archive-Huge/Multimodal | 120.50 GiB | 4.4% |
 | Archive-Huge/Coding | 86.22 GiB | 3.2% |
-| Coding | 61.54 GiB | 2.3% |
-| Speech-STT | 52.79 GiB | 2.0% |
+| Coding | 70.84 GiB | 2.6% |
+| Speech-STT | 52.79 GiB | 1.9% |
 | Audio | 43.54 GiB | 1.6% |
-| Embeddings | 39.26 GiB | 1.5% |
+| Embeddings | 39.35 GiB | 1.5% |
 | Video | 17.06 GiB | 0.6% |
 | Vision-OCR | 6.32 GiB | 0.2% |
 | Safety-Moderation | 1.05 GiB | 0.0% |
@@ -34,13 +34,13 @@
 
 | Capability | Size | Share |
 |---|---:|---:|
-| LLM / reasoning-chat | 1709.79 GiB | 63.3% |
-| Image generation/editing | 562.27 GiB | 20.8% |
-| Coding LLM | 147.76 GiB | 5.5% |
-| Multimodal / vision-language | 120.50 GiB | 4.5% |
-| Speech-to-text | 52.79 GiB | 2.0% |
+| LLM / reasoning-chat | 1711.21 GiB | 63.1% |
+| Image generation/editing | 562.27 GiB | 20.7% |
+| Coding LLM | 157.06 GiB | 5.8% |
+| Multimodal / vision-language | 120.50 GiB | 4.4% |
+| Speech-to-text | 52.79 GiB | 1.9% |
 | Audio generation / audio model | 43.54 GiB | 1.6% |
-| Embeddings / retrieval | 39.26 GiB | 1.5% |
+| Embeddings / retrieval | 39.35 GiB | 1.5% |
 | Video generation | 17.06 GiB | 0.6% |
 | OCR / document extraction | 6.32 GiB | 0.2% |
 | Prompt safety / moderation | 1.05 GiB | 0.0% |

@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-AUDIT = REPO_ROOT / "reports" / "model-library-audit-post-cleanup-20260821-133801Z.json"
+REPORTS = REPO_ROOT / "reports"
 OUT_DIR = REPO_ROOT / "transfer-manifests"
 
 BUNDLES: dict[str, list[str]] = {
@@ -81,13 +81,22 @@ def runtime_hint(selector: str, repo_id: str) -> str:
         return "ComfyUI or diffusers on AI box"
     if "audio" in text or "personaplex" in text:
         return "model-specific audio/diffusers stack on AI box"
-    if "gguf" in text or "q4_" in text or "q5_" in text or "coder" in text:
-        return "llama.cpp/GGUF-compatible runtime on AI box"
+    if "gguf" in text or "q4_" in text or "q5_" in text or "awq" in text:
+        return "llama.cpp/GGUF/AWQ-compatible runtime on AI box"
+    if "llm/" in text or "/qwen" in text or "qwen/" in text or "gpt-oss" in text or "deepseek" in text:
+        return "transformers/vLLM-compatible runtime on AI box"
+    if "coder" in text:
+        return "coding LLM runtime on AI box; check quant/runtime format before launch"
     return "inspect upstream model card and local metadata before transfer"
 
 
 def load_inventory() -> dict[str, dict[str, Any]]:
-    rows = json.loads(AUDIT.read_text(encoding="utf-8"))
+    reports = sorted(REPORTS.glob("model-library-audit-*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
+    if not reports:
+        raise SystemExit("No model-library audit JSON reports found. Run scripts/audit_model_library.py first.")
+    audit = reports[0]
+    print(f"Using audit report: {audit}")
+    rows = json.loads(audit.read_text(encoding="utf-8"))
     out: dict[str, dict[str, Any]] = {}
     for row in rows:
         if row.get("scope") == "workflow":

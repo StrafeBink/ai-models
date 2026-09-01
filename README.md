@@ -26,6 +26,15 @@ The backing SMB share details are environment-specific and intentionally not doc
 
 If the Mac Mini has rebooted and the folder appears empty, remount the SMB model share using the known local/private connection details, then verify the mount before moving or downloading models.
 
+Latest additions:
+
+```text
+LLM/Qwen3-0.6B
+Coding/Qwen2.5-Coder-14B-Instruct-AWQ
+```
+
+These were added as a small AI-box runtime smoke-test model and a practical coding benchmark candidate.
+
 ## Taxonomy
 
 Top-level model categories:
