@@ -343,3 +343,36 @@ Script maintenance:
 
 - `scripts/generate_capability_reports.py` now uses the newest `reports/model-library-audit-*.json` instead of a fixed historical audit path.
 - `scripts/generate_ai_box_transfer_manifest.py` also uses the newest audit report and now gives clearer runtime hints for LLM/Coding safetensors, AWQ, GGUF, and Qwen-style models.
+
+## 2026-09-07 — Completed all approved Watch/archive downloads
+
+Downloaded or verified all five additional approved models:
+
+```text
+LLM/Qwen3-8B
+Coding/Qwen2.5-Coder-32B-Instruct-AWQ
+Multimodal/Qwen3.6-27B-FP8
+Archive-Huge/LLM/gpt-oss-120b
+Archive-Huge/LLM/DeepSeek-R1
+```
+
+Verification:
+
+- `Qwen3-8B`: 16 payload files, 15.27 GiB, metadata present.
+- `Qwen2.5-Coder-32B-Instruct-AWQ`: 16 payload files, 18.01 GiB, metadata present.
+- `Qwen3.6-27B-FP8`: 81 payload files, 28.77 GiB, metadata present.
+- `gpt-oss-120b`: 38 payload files, 182.32 GiB, metadata present.
+- `DeepSeek-R1`: 175 payload files, 641.31 GiB, metadata present.
+- Post-download audit: 59 folders, 0 issues.
+- Generated transfer manifest:
+
+```text
+transfer-manifests/ai-box-transfer-all-approved-downloads-20260907-131056Z.md
+```
+
+Operational notes:
+
+- `gpt-oss-120b` exposed two downloader pitfalls: the Python Hugging Face client refuses its 60.8 GiB `metal/model.bin` via regular HTTP, and direct-to-SMB writes can fail with `OSError: [Errno 5] Input/output error` during very large files.
+- Added `scripts/download_archive_per_file.py`, which downloads one file at a time to local staging, verifies local size, copies to SMB with `rsync --inplace`, verifies destination size, then removes the local staging file.
+- Installed `git-lfs` via Homebrew while investigating the large LFS failure path.
+- Sanitized generated logs so bearer tokens are redacted before any project search/commit.

@@ -30,10 +30,15 @@ Latest additions:
 
 ```text
 LLM/Qwen3-0.6B
+LLM/Qwen3-8B
 Coding/Qwen2.5-Coder-14B-Instruct-AWQ
+Coding/Qwen2.5-Coder-32B-Instruct-AWQ
+Multimodal/Qwen3.6-27B-FP8
+Archive-Huge/LLM/gpt-oss-120b
+Archive-Huge/LLM/DeepSeek-R1
 ```
 
-These were added as a small AI-box runtime smoke-test model and a practical coding benchmark candidate.
+These include small AI-box runtime/coding candidates plus two large strategic archives.
 
 ## Taxonomy
 

@@ -18,6 +18,8 @@ This is a decision layer for the model file server. It describes what each verif
 |---|---|---|---|---|---|---:|---|
 | Archive-Huge/Coding | `Qwen3-Coder-30B-A3B-Instruct` | Coding LLM | `archive_only` | `strategic_archive` | llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archive. | 57.17 GiB | Move to AI box for local coding assistant/code generation tests. |
 | Archive-Huge/Coding | `Qwen3-Coder-30B-A3B-Instruct-FP8` | Coding LLM | `archive_only` | `strategic_archive` | llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archive. | 29.05 GiB | Move to AI box for local coding assistant/code generation tests. |
+| Archive-Huge/LLM | `DeepSeek-R1` | LLM / reasoning-chat | `archive_only` | `strategic_archive` | llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archives. | 641.31 GiB | Move to AI box for chat, reasoning, drafting, and agent-backend trials. |
+| Archive-Huge/LLM | `gpt-oss-120b` | LLM / reasoning-chat | `archive_only` | `strategic_archive` | llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archives. | 182.55 GiB | Move to AI box for chat, reasoning, drafting, and agent-backend trials. |
 | Archive-Huge/LLM | `Kimi-K3` | LLM / reasoning-chat | `archive_only` | `strategic_archive` | llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archives. | 1453.79 GiB | Move to AI box for chat, reasoning, drafting, and agent-backend trials. |
 | Archive-Huge/LLM | `Llama-2-7b-chat-hf` | LLM / reasoning-chat | `archive_only` | `strategic_archive` | llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archives. | 25.11 GiB | Move to AI box for chat, reasoning, drafting, and agent-backend trials. |
 | Archive-Huge/LLM | `Llama-3.1-8B-Instruct` | LLM / reasoning-chat | `archive_only` | `strategic_archive` | llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archives. | 29.93 GiB | Move to AI box for chat, reasoning, drafting, and agent-backend trials. |
@@ -32,6 +34,7 @@ This is a decision layer for the model file server. It describes what each verif
 | Audio | `stable-audio-3-small-sfx` | Audio generation / audio model | `medium` | `active` | Model-specific audio/diffusers stack on AI box. | 3.25 GiB | Move to AI box for audio/music/SFX model-specific workflows. |
 | Audio | `stable-audio-open-1.0` | Audio generation / audio model | `medium` | `active` | Model-specific audio/diffusers stack on AI box. | 14.60 GiB | Move to AI box for audio/music/SFX model-specific workflows. |
 | Coding | `Qwen2.5-Coder-14B-Instruct-AWQ` | Coding LLM | `high` | `active` | llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archive. | 9.31 GiB | Move to AI box for local coding assistant/code generation tests. |
+| Coding | `Qwen2.5-Coder-32B-Instruct-AWQ` | Coding LLM | `high` | `active` | llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archive. | 18.01 GiB | Move to AI box for local coding assistant/code generation tests. |
 | Coding | `Qwen3-Coder-30B-A3B-UD-Q4_K_XL` | Coding LLM | `high` | `active` | llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archive. | 16.45 GiB | Move to AI box for local coding assistant/code generation tests. |
 | Coding | `Qwen3-Coder-Next-Q4_K_M` | Coding LLM | `high` | `active` | llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archive. | 45.09 GiB | Move to AI box for local coding assistant/code generation tests. |
 | Diffusion-Image | `FLUX.1-dev` | Image generation/editing | `medium` | `active` | ComfyUI or diffusers on AI box. | 60.59 GiB | Move to AI box for ComfyUI/diffusers image generation and editing. |
@@ -58,8 +61,10 @@ This is a decision layer for the model file server. It describes what each verif
 | LLM | `Ministral-3-14B-Q5_K_M` | LLM / reasoning-chat | `high` | `active` | llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archives. | 8.96 GiB | Move to AI box for chat, reasoning, drafting, and agent-backend trials. |
 | LLM | `Qwen3-0.6B` | LLM / reasoning-chat | `medium` | `active` | llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archives. | 1.41 GiB | Move to AI box for chat, reasoning, drafting, and agent-backend trials. |
 | LLM | `Qwen3-32B-Q5_K_M` | LLM / reasoning-chat | `high` | `active` | llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archives. | 21.62 GiB | Move to AI box for chat, reasoning, drafting, and agent-backend trials. |
+| LLM | `Qwen3-8B` | LLM / reasoning-chat | `medium` | `active` | llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archives. | 15.27 GiB | Move to AI box for chat, reasoning, drafting, and agent-backend trials. |
 | LLM | `Qwen3.6-35B-A3B-NVFP4` | LLM / reasoning-chat | `high` | `active` | llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archives. | 21.85 GiB | Move to AI box for chat, reasoning, drafting, and agent-backend trials. |
 | LLM | `Qwen3.6-35B-A3B-UD-Q4_K_M` | LLM / reasoning-chat | `high` | `active` | llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archives. | 20.61 GiB | Move to AI box for chat, reasoning, drafting, and agent-backend trials. |
+| Multimodal | `Qwen3.6-27B-FP8` | Multimodal / vision-language | `medium` | `active` | transformers/vLLM/custom multimodal runtime on AI box. | 28.77 GiB | Move to AI box for image-understanding/multimodal agent tests. |
 | Safety-Moderation | `Prompt-Guard-86M` | Prompt safety / moderation | `high` | `active` | transformers sequence-classification on AI box. | 1.05 GiB | Move to AI box for prompt-injection and jailbreak checks in agents/RAG. |
 | Speech-STT | `nemotron-3.5-asr-streaming-0.6b` | Speech-to-text | `medium` | `active` | faster-whisper preferred; transformers fallback on AI box. | 5.27 GiB | Move to AI box for transcription/STT testing. |
 | Speech-STT | `whisper-large-v2` | Speech-to-text | `medium` | `review_after_benchmark` | faster-whisper preferred; transformers fallback on AI box. | 23.00 GiB | Move to AI box for transcription/STT testing. |
@@ -95,6 +100,32 @@ This is a decision layer for the model file server. It describes what each verif
 - Size: `29.05 GiB`; payload files: `17`
 - Recommended use: Move to AI box for local coding assistant/code generation tests.
 - Notes: Strategic archive/future-hardware store. Keep on file server; transfer only for a specific AI-box comparison or future-hardware test. GGUF quants are likely the most useful current AI-box transfer candidates.
+
+### `DeepSeek-R1`
+
+- Repo: `deepseek-ai/DeepSeek-R1`
+- Location: `Archive-Huge/LLM`
+- Capability: LLM / reasoning-chat
+- Library status: `verified_file_server_copy`
+- Transfer priority: `archive_only`
+- Keep status: `strategic_archive`
+- AI-box runtime: llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archives.
+- Size: `641.31 GiB`; payload files: `175`
+- Recommended use: Move to AI box for chat, reasoning, drafting, and agent-backend trials.
+- Notes: Strategic archive/future-hardware store. Keep on file server; transfer only for a specific AI-box comparison or future-hardware test. Benchmark tokens/sec and answer quality on the AI box before setting defaults.
+
+### `gpt-oss-120b`
+
+- Repo: `openai/gpt-oss-120b`
+- Location: `Archive-Huge/LLM`
+- Capability: LLM / reasoning-chat
+- Library status: `verified_file_server_copy`
+- Transfer priority: `archive_only`
+- Keep status: `strategic_archive`
+- AI-box runtime: llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archives.
+- Size: `182.55 GiB`; payload files: `38`
+- Recommended use: Move to AI box for chat, reasoning, drafting, and agent-backend trials.
+- Notes: Strategic archive/future-hardware store. Keep on file server; transfer only for a specific AI-box comparison or future-hardware test. Benchmark tokens/sec and answer quality on the AI box before setting defaults.
 
 ### `Kimi-K3`
 
@@ -275,6 +306,19 @@ This is a decision layer for the model file server. It describes what each verif
 - Keep status: `active`
 - AI-box runtime: llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archive.
 - Size: `9.31 GiB`; payload files: `14`
+- Recommended use: Move to AI box for local coding assistant/code generation tests.
+- Notes: GGUF quants are likely the most useful current AI-box transfer candidates.
+
+### `Qwen2.5-Coder-32B-Instruct-AWQ`
+
+- Repo: `Qwen/Qwen2.5-Coder-32B-Instruct-AWQ`
+- Location: `Coding`
+- Capability: Coding LLM
+- Library status: `verified_file_server_copy`
+- Transfer priority: `high`
+- Keep status: `active`
+- AI-box runtime: llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archive.
+- Size: `18.01 GiB`; payload files: `16`
 - Recommended use: Move to AI box for local coding assistant/code generation tests.
 - Notes: GGUF quants are likely the most useful current AI-box transfer candidates.
 
@@ -616,6 +660,19 @@ This is a decision layer for the model file server. It describes what each verif
 - Recommended use: Move to AI box for chat, reasoning, drafting, and agent-backend trials.
 - Notes: Benchmark tokens/sec and answer quality on the AI box before setting defaults.
 
+### `Qwen3-8B`
+
+- Repo: `Qwen/Qwen3-8B`
+- Location: `LLM`
+- Capability: LLM / reasoning-chat
+- Library status: `verified_file_server_copy`
+- Transfer priority: `medium`
+- Keep status: `active`
+- AI-box runtime: llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archives.
+- Size: `15.27 GiB`; payload files: `16`
+- Recommended use: Move to AI box for chat, reasoning, drafting, and agent-backend trials.
+- Notes: Benchmark tokens/sec and answer quality on the AI box before setting defaults.
+
 ### `Qwen3.6-35B-A3B-NVFP4`
 
 - Repo: `nvidia/Qwen3.6-35B-A3B-NVFP4`
@@ -641,6 +698,19 @@ This is a decision layer for the model file server. It describes what each verif
 - Size: `20.61 GiB`; payload files: `2`
 - Recommended use: Move to AI box for chat, reasoning, drafting, and agent-backend trials.
 - Notes: Benchmark tokens/sec and answer quality on the AI box before setting defaults.
+
+### `Qwen3.6-27B-FP8`
+
+- Repo: `Qwen/Qwen3.6-27B-FP8`
+- Location: `Multimodal`
+- Capability: Multimodal / vision-language
+- Library status: `verified_file_server_copy`
+- Transfer priority: `medium`
+- Keep status: `active`
+- AI-box runtime: transformers/vLLM/custom multimodal runtime on AI box.
+- Size: `28.77 GiB`; payload files: `81`
+- Recommended use: Move to AI box for image-understanding/multimodal agent tests.
+- Notes: Requires AI-box multimodal runtime compatibility test.
 
 ### `Prompt-Guard-86M`
 
