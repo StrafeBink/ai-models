@@ -44,11 +44,13 @@ This is a decision layer for the model file server. It describes what each verif
 | Diffusion-Image | `FLUX.2-dev` | Image generation/editing | `medium` | `active` | ComfyUI or diffusers on AI box. | 165.44 GiB | Move to AI box for ComfyUI/diffusers image generation and editing. |
 | Diffusion-Image | `FLUX.2-klein-9B` | Image generation/editing | `high` | `active` | ComfyUI or diffusers on AI box. | 49.26 GiB | Move to AI box for ComfyUI/diffusers image generation and editing. |
 | Diffusion-Image | `FLUX.2-klein-9b-fp8` | Image generation/editing | `high` | `active` | ComfyUI or diffusers on AI box. | 8.79 GiB | Move to AI box for ComfyUI/diffusers image generation and editing. |
+| Diffusion-Image | `Qwen-Image-2.1` | Image generation/editing | `medium` | `active` | ComfyUI or diffusers on AI box. | 30.86 GiB | Move to AI box for ComfyUI/diffusers image generation and editing. |
 | Diffusion-Image | `stable-diffusion-3-medium` | Image generation/editing | `medium` | `active` | ComfyUI or diffusers on AI box. | 49.66 GiB | Move to AI box for ComfyUI/diffusers image generation and editing. |
 | Diffusion-Image | `stable-diffusion-3.5-large` | Image generation/editing | `medium` | `active` | ComfyUI or diffusers on AI box. | 66.67 GiB | Move to AI box for ComfyUI/diffusers image generation and editing. |
 | Embeddings | `all-MiniLM-L12-v2` | Embeddings / retrieval | `medium` | `active` | sentence-transformers/transformers on AI box; GGUF embedding runtime for GGUF quants. | 1.21 GiB | Move to AI box for semantic search, RAG retrieval, clustering, similarity. |
 | Embeddings | `all-MiniLM-L6-v2` | Embeddings / retrieval | `high` | `active` | sentence-transformers/transformers on AI box; GGUF embedding runtime for GGUF quants. | 0.91 GiB | Move to AI box for semantic search, RAG retrieval, clustering, similarity. |
 | Embeddings | `all-mpnet-base-v2` | Embeddings / retrieval | `high` | `active` | sentence-transformers/transformers on AI box; GGUF embedding runtime for GGUF quants. | 3.56 GiB | Move to AI box for semantic search, RAG retrieval, clustering, similarity. |
+| Embeddings | `embeddinggemma-2` | Embeddings / retrieval | `medium` | `active` | sentence-transformers/transformers on AI box; GGUF embedding runtime for GGUF quants. | 1.42 GiB | Move to AI box for semantic search, RAG retrieval, clustering, similarity. |
 | Embeddings | `embeddinggemma-300m` | Embeddings / retrieval | `medium` | `active` | sentence-transformers/transformers on AI box; GGUF embedding runtime for GGUF quants. | 1.18 GiB | Move to AI box for semantic search, RAG retrieval, clustering, similarity. |
 | Embeddings | `paraphrase-multilingual-MiniLM-L12-v2` | Embeddings / retrieval | `medium` | `active` | sentence-transformers/transformers on AI box; GGUF embedding runtime for GGUF quants. | 3.87 GiB | Move to AI box for semantic search, RAG retrieval, clustering, similarity. |
 | Embeddings | `paraphrase-multilingual-mpnet-base-v2` | Embeddings / retrieval | `high` | `active` | sentence-transformers/transformers on AI box; GGUF embedding runtime for GGUF quants. | 9.07 GiB | Move to AI box for semantic search, RAG retrieval, clustering, similarity. |
@@ -56,6 +58,7 @@ This is a decision layer for the model file server. It describes what each verif
 | Embeddings | `Qwen3-VL-Embedding-8B` | Embeddings / retrieval | `medium` | `active` | sentence-transformers/transformers on AI box; GGUF embedding runtime for GGUF quants. | 15.19 GiB | Move to AI box for semantic search, RAG retrieval, clustering, similarity. |
 | LLM | `DeepSeek-R1-Distill-Qwen-32B-Q5_K_M` | LLM / reasoning-chat | `high` | `active` | llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archives. | 21.66 GiB | Move to AI box for chat, reasoning, drafting, and agent-backend trials. |
 | LLM | `Gemma-3-27B-QAT-Q4_0` | LLM / reasoning-chat | `medium` | `active` | llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archives. | 16.05 GiB | Move to AI box for chat, reasoning, drafting, and agent-backend trials. |
+| LLM | `gemma-4-26B-A4B-it-UD-Q4_K_XL` | LLM / reasoning-chat | `medium` | `active` | llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archives. | 16.95 GiB | Move to AI box for chat, reasoning, drafting, and agent-backend trials. |
 | LLM | `GLM-4.7-Flash-Q4_K_M` | LLM / reasoning-chat | `high` | `active` | llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archives. | 17.21 GiB | Move to AI box for chat, reasoning, drafting, and agent-backend trials. |
 | LLM | `GPT-OSS-20B` | LLM / reasoning-chat | `high` | `active` | llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archives. | 38.47 GiB | Move to AI box for chat, reasoning, drafting, and agent-backend trials. |
 | LLM | `Ministral-3-14B-Q5_K_M` | LLM / reasoning-chat | `high` | `active` | llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archives. | 8.96 GiB | Move to AI box for chat, reasoning, drafting, and agent-backend trials. |
@@ -64,12 +67,24 @@ This is a decision layer for the model file server. It describes what each verif
 | LLM | `Qwen3-8B` | LLM / reasoning-chat | `medium` | `active` | llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archives. | 15.27 GiB | Move to AI box for chat, reasoning, drafting, and agent-backend trials. |
 | LLM | `Qwen3.6-35B-A3B-NVFP4` | LLM / reasoning-chat | `high` | `active` | llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archives. | 21.85 GiB | Move to AI box for chat, reasoning, drafting, and agent-backend trials. |
 | LLM | `Qwen3.6-35B-A3B-UD-Q4_K_M` | LLM / reasoning-chat | `high` | `active` | llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archives. | 20.61 GiB | Move to AI box for chat, reasoning, drafting, and agent-backend trials. |
+| LLM | `Qwen3.8-27B-UD-Q4_K_XL` | LLM / reasoning-chat | `medium` | `active` | llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archives. | 17.22 GiB | Move to AI box for chat, reasoning, drafting, and agent-backend trials. |
 | Multimodal | `Qwen3.6-27B-FP8` | Multimodal / vision-language | `medium` | `active` | transformers/vLLM/custom multimodal runtime on AI box. | 28.77 GiB | Move to AI box for image-understanding/multimodal agent tests. |
+| Rerankers | `Qwen3-VL-Reranker-2B` | Reranking / retrieval | `medium` | `active` | transformers/sentence-transformers cross-encoder on AI box. | 3.98 GiB | Move to AI box to rerank RAG search results after the embedding step. |
 | Safety-Moderation | `Prompt-Guard-86M` | Prompt safety / moderation | `high` | `active` | transformers sequence-classification on AI box. | 1.05 GiB | Move to AI box for prompt-injection and jailbreak checks in agents/RAG. |
-| Speech-STT | `nemotron-3.5-asr-streaming-0.6b` | Speech-to-text | `medium` | `active` | faster-whisper preferred; transformers fallback on AI box. | 5.27 GiB | Move to AI box for transcription/STT testing. |
+| Speech-STT | `Nemotron-3-Diarization` | Speaker diarisation / voice activity | `medium` | `active` | NeMo / ONNX runtime on AI box (very small; CPU is fine). | 0.66 GiB | Move to AI box alongside an STT model to split speakers and detect speech. |
+| Speech-STT | `nemotron-3.5-asr-streaming-0.6b` | Speech-to-text | `medium` | `active` | NeMo (parakeet/nemotron) or transformers (Qwen3-ASR) on AI box. | 5.27 GiB | Move to AI box for transcription/STT testing. |
+| Speech-STT | `parakeet-tdt-0.6b-v3` | Speech-to-text | `high` | `active` | NeMo (parakeet/nemotron) or transformers (Qwen3-ASR) on AI box. | 5.34 GiB | Move to AI box for transcription/STT testing. |
+| Speech-STT | `Qwen3-ASR-1.7B` | Speech-to-text | `medium` | `active` | NeMo (parakeet/nemotron) or transformers (Qwen3-ASR) on AI box. | 4.38 GiB | Move to AI box for transcription/STT testing. |
+| Speech-STT | `silero-vad` | Speaker diarisation / voice activity | `medium` | `active` | NeMo / ONNX runtime on AI box (very small; CPU is fine). | 0.01 GiB | Move to AI box alongside an STT model to split speakers and detect speech. |
 | Speech-STT | `whisper-large-v2` | Speech-to-text | `medium` | `review_after_benchmark` | faster-whisper preferred; transformers fallback on AI box. | 23.00 GiB | Move to AI box for transcription/STT testing. |
 | Speech-STT | `whisper-large-v3` | Speech-to-text | `medium` | `active` | faster-whisper preferred; transformers fallback on AI box. | 23.01 GiB | Move to AI box for transcription/STT testing. |
 | Speech-STT | `whisper-large-v3-turbo` | Speech-to-text | `high` | `active` | faster-whisper preferred; transformers fallback on AI box. | 1.51 GiB | Move to AI box for transcription/STT testing. |
+| Speech-TTS | `chatterbox` | Text-to-speech / voice | `high` | `active` | Model-specific PyTorch package (kokoro, chatterbox, qwen-tts, vibevoice, voxcpm) on AI box; Kokoro also runs on CPU/ONNX. | 12.91 GiB | Move to AI box for speech synthesis, narration, and voice cloning. |
+| Speech-TTS | `Kokoro-82M` | Text-to-speech / voice | `high` | `active` | Model-specific PyTorch package (kokoro, chatterbox, qwen-tts, vibevoice, voxcpm) on AI box; Kokoro also runs on CPU/ONNX. | 0.34 GiB | Move to AI box for speech synthesis, narration, and voice cloning. |
+| Speech-TTS | `Qwen3-TTS-12Hz-1.7B-Base` | Text-to-speech / voice | `high` | `active` | Model-specific PyTorch package (kokoro, chatterbox, qwen-tts, vibevoice, voxcpm) on AI box; Kokoro also runs on CPU/ONNX. | 4.23 GiB | Move to AI box for speech synthesis, narration, and voice cloning. |
+| Speech-TTS | `Qwen3-TTS-12Hz-1.7B-CustomVoice` | Text-to-speech / voice | `high` | `active` | Model-specific PyTorch package (kokoro, chatterbox, qwen-tts, vibevoice, voxcpm) on AI box; Kokoro also runs on CPU/ONNX. | 4.21 GiB | Move to AI box for speech synthesis, narration, and voice cloning. |
+| Speech-TTS | `VibeVoice-1.5B` | Text-to-speech / voice | `medium` | `active` | Model-specific PyTorch package (kokoro, chatterbox, qwen-tts, vibevoice, voxcpm) on AI box; Kokoro also runs on CPU/ONNX. | 5.04 GiB | Move to AI box for speech synthesis, narration, and voice cloning. |
+| Speech-TTS | `VoxCPM2` | Text-to-speech / voice | `medium` | `active` | Model-specific PyTorch package (kokoro, chatterbox, qwen-tts, vibevoice, voxcpm) on AI box; Kokoro also runs on CPU/ONNX. | 4.62 GiB | Move to AI box for speech synthesis, narration, and voice cloning. |
 | Video | `stable-video-diffusion-img2vid-xt-1-1` | Video generation | `medium` | `active` | ComfyUI or diffusers Stable Video pipeline on AI box. | 17.06 GiB | Move to AI box for image-to-video generation workflows. |
 | Vision-OCR | `DeepSeek-OCR-2` | OCR / document extraction | `medium` | `active` | transformers/custom model code on AI box. | 6.32 GiB | Move to AI box for image/PDF text extraction experiments. |
 
@@ -439,6 +454,19 @@ This is a decision layer for the model file server. It describes what each verif
 - Recommended use: Move to AI box for ComfyUI/diffusers image generation and editing.
 - Notes: Transfer smaller/fast variants before huge full models unless a workflow needs them.
 
+### `Qwen-Image-2.1`
+
+- Repo: `Qwen/Qwen-Image-2.1`
+- Location: `Diffusion-Image`
+- Capability: Image generation/editing
+- Library status: `verified_file_server_copy`
+- Transfer priority: `medium`
+- Keep status: `active`
+- AI-box runtime: ComfyUI or diffusers on AI box.
+- Size: `30.86 GiB`; payload files: `29`
+- Recommended use: Move to AI box for ComfyUI/diffusers image generation and editing.
+- Notes: Large DiT model; needs CPU offload on small-VRAM GPUs.
+
 ### `stable-diffusion-3-medium`
 
 - Repo: `stabilityai/stable-diffusion-3-medium`
@@ -501,6 +529,19 @@ This is a decision layer for the model file server. It describes what each verif
 - Keep status: `active`
 - AI-box runtime: sentence-transformers/transformers on AI box; GGUF embedding runtime for GGUF quants.
 - Size: `3.56 GiB`; payload files: `29`
+- Recommended use: Move to AI box for semantic search, RAG retrieval, clustering, similarity.
+- Notes: Copy small baseline first; benchmark retrieval quality before choosing the default embedding model.
+
+### `embeddinggemma-2`
+
+- Repo: `google/embeddinggemma-2`
+- Location: `Embeddings`
+- Capability: Embeddings / retrieval
+- Library status: `verified_file_server_copy`
+- Transfer priority: `medium`
+- Keep status: `active`
+- AI-box runtime: sentence-transformers/transformers on AI box; GGUF embedding runtime for GGUF quants.
+- Size: `1.42 GiB`; payload files: `16`
 - Recommended use: Move to AI box for semantic search, RAG retrieval, clustering, similarity.
 - Notes: Copy small baseline first; benchmark retrieval quality before choosing the default embedding model.
 
@@ -592,6 +633,19 @@ This is a decision layer for the model file server. It describes what each verif
 - Keep status: `active`
 - AI-box runtime: llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archives.
 - Size: `16.05 GiB`; payload files: `2`
+- Recommended use: Move to AI box for chat, reasoning, drafting, and agent-backend trials.
+- Notes: Benchmark tokens/sec and answer quality on the AI box before setting defaults.
+
+### `gemma-4-26B-A4B-it-UD-Q4_K_XL`
+
+- Repo: `unsloth/gemma-4-26B-A4B-it-GGUF`
+- Location: `LLM`
+- Capability: LLM / reasoning-chat
+- Library status: `verified_file_server_copy`
+- Transfer priority: `medium`
+- Keep status: `active`
+- AI-box runtime: llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archives.
+- Size: `16.95 GiB`; payload files: `6`
 - Recommended use: Move to AI box for chat, reasoning, drafting, and agent-backend trials.
 - Notes: Benchmark tokens/sec and answer quality on the AI box before setting defaults.
 
@@ -699,6 +753,19 @@ This is a decision layer for the model file server. It describes what each verif
 - Recommended use: Move to AI box for chat, reasoning, drafting, and agent-backend trials.
 - Notes: Benchmark tokens/sec and answer quality on the AI box before setting defaults.
 
+### `Qwen3.8-27B-UD-Q4_K_XL`
+
+- Repo: `unsloth/Qwen3.8-27B-GGUF`
+- Location: `LLM`
+- Capability: LLM / reasoning-chat
+- Library status: `verified_file_server_copy`
+- Transfer priority: `medium`
+- Keep status: `active`
+- AI-box runtime: llama.cpp/GGUF on AI box for quant folders; transformers/vLLM for safetensors archives.
+- Size: `17.22 GiB`; payload files: `5`
+- Recommended use: Move to AI box for chat, reasoning, drafting, and agent-backend trials.
+- Notes: Benchmark tokens/sec and answer quality on the AI box before setting defaults.
+
 ### `Qwen3.6-27B-FP8`
 
 - Repo: `Qwen/Qwen3.6-27B-FP8`
@@ -711,6 +778,19 @@ This is a decision layer for the model file server. It describes what each verif
 - Size: `28.77 GiB`; payload files: `81`
 - Recommended use: Move to AI box for image-understanding/multimodal agent tests.
 - Notes: Requires AI-box multimodal runtime compatibility test.
+
+### `Qwen3-VL-Reranker-2B`
+
+- Repo: `Qwen/Qwen3-VL-Reranker-2B`
+- Location: `Rerankers`
+- Capability: Reranking / retrieval
+- Library status: `verified_file_server_copy`
+- Transfer priority: `medium`
+- Keep status: `active`
+- AI-box runtime: transformers/sentence-transformers cross-encoder on AI box.
+- Size: `3.98 GiB`; payload files: `21`
+- Recommended use: Move to AI box to rerank RAG search results after the embedding step.
+- Notes: Pair with an embedding model; benchmark retrieval quality with and without reranking.
 
 ### `Prompt-Guard-86M`
 
@@ -725,6 +805,19 @@ This is a decision layer for the model file server. It describes what each verif
 - Recommended use: Move to AI box for prompt-injection and jailbreak checks in agents/RAG.
 - Notes: Strong default safety guardrail candidate; small transfer.
 
+### `Nemotron-3-Diarization`
+
+- Repo: `nvidia/Nemotron-3-Diarization`
+- Location: `Speech-STT`
+- Capability: Speaker diarisation / voice activity
+- Library status: `verified_file_server_copy`
+- Transfer priority: `medium`
+- Keep status: `active`
+- AI-box runtime: NeMo / ONNX runtime on AI box (very small; CPU is fine).
+- Size: `0.66 GiB`; payload files: `17`
+- Recommended use: Move to AI box alongside an STT model to split speakers and detect speech.
+- Notes: Small helper models for transcription pipelines.
+
 ### `nemotron-3.5-asr-streaming-0.6b`
 
 - Repo: `nvidia/nemotron-3.5-asr-streaming-0.6b`
@@ -733,10 +826,49 @@ This is a decision layer for the model file server. It describes what each verif
 - Library status: `verified_file_server_copy`
 - Transfer priority: `medium`
 - Keep status: `active`
-- AI-box runtime: faster-whisper preferred; transformers fallback on AI box.
+- AI-box runtime: NeMo (parakeet/nemotron) or transformers (Qwen3-ASR) on AI box.
 - Size: `5.27 GiB`; payload files: `23`
 - Recommended use: Move to AI box for transcription/STT testing.
-- Notes: Transfer v3-turbo first; keep v2 only if AI-box accuracy tests justify it.
+- Notes: Benchmark against whisper-large-v3-turbo for speed and accuracy.
+
+### `parakeet-tdt-0.6b-v3`
+
+- Repo: `nvidia/parakeet-tdt-0.6b-v3`
+- Location: `Speech-STT`
+- Capability: Speech-to-text
+- Library status: `verified_file_server_copy`
+- Transfer priority: `high`
+- Keep status: `active`
+- AI-box runtime: NeMo (parakeet/nemotron) or transformers (Qwen3-ASR) on AI box.
+- Size: `5.34 GiB`; payload files: `13`
+- Recommended use: Move to AI box for transcription/STT testing.
+- Notes: Benchmark against whisper-large-v3-turbo for speed and accuracy.
+
+### `Qwen3-ASR-1.7B`
+
+- Repo: `Qwen/Qwen3-ASR-1.7B`
+- Location: `Speech-STT`
+- Capability: Speech-to-text
+- Library status: `verified_file_server_copy`
+- Transfer priority: `medium`
+- Keep status: `active`
+- AI-box runtime: NeMo (parakeet/nemotron) or transformers (Qwen3-ASR) on AI box.
+- Size: `4.38 GiB`; payload files: `13`
+- Recommended use: Move to AI box for transcription/STT testing.
+- Notes: Benchmark against whisper-large-v3-turbo for speed and accuracy.
+
+### `silero-vad`
+
+- Repo: `onnx-community/silero-vad`
+- Location: `Speech-STT`
+- Capability: Speaker diarisation / voice activity
+- Library status: `verified_file_server_copy`
+- Transfer priority: `medium`
+- Keep status: `active`
+- AI-box runtime: NeMo / ONNX runtime on AI box (very small; CPU is fine).
+- Size: `0.01 GiB`; payload files: `12`
+- Recommended use: Move to AI box alongside an STT model to split speakers and detect speech.
+- Notes: Small helper models for transcription pipelines.
 
 ### `whisper-large-v2`
 
@@ -776,6 +908,84 @@ This is a decision layer for the model file server. It describes what each verif
 - Size: `1.51 GiB`; payload files: `14`
 - Recommended use: Move to AI box for transcription/STT testing.
 - Notes: Transfer v3-turbo first; keep v2 only if AI-box accuracy tests justify it.
+
+### `chatterbox`
+
+- Repo: `ResembleAI/chatterbox`
+- Location: `Speech-TTS`
+- Capability: Text-to-speech / voice
+- Library status: `verified_file_server_copy`
+- Transfer priority: `high`
+- Keep status: `active`
+- AI-box runtime: Model-specific PyTorch package (kokoro, chatterbox, qwen-tts, vibevoice, voxcpm) on AI box; Kokoro also runs on CPU/ONNX.
+- Size: `12.91 GiB`; payload files: `19`
+- Recommended use: Move to AI box for speech synthesis, narration, and voice cloning.
+- Notes: Start with Kokoro (tiny, fast) as the default voice; use Qwen3-TTS or Chatterbox for cloning.
+
+### `Kokoro-82M`
+
+- Repo: `hexgrad/Kokoro-82M`
+- Location: `Speech-TTS`
+- Capability: Text-to-speech / voice
+- Library status: `verified_file_server_copy`
+- Transfer priority: `high`
+- Keep status: `active`
+- AI-box runtime: Model-specific PyTorch package (kokoro, chatterbox, qwen-tts, vibevoice, voxcpm) on AI box; Kokoro also runs on CPU/ONNX.
+- Size: `0.34 GiB`; payload files: `73`
+- Recommended use: Move to AI box for speech synthesis, narration, and voice cloning.
+- Notes: Start with Kokoro (tiny, fast) as the default voice; use Qwen3-TTS or Chatterbox for cloning.
+
+### `Qwen3-TTS-12Hz-1.7B-Base`
+
+- Repo: `Qwen/Qwen3-TTS-12Hz-1.7B-Base`
+- Location: `Speech-TTS`
+- Capability: Text-to-speech / voice
+- Library status: `verified_file_server_copy`
+- Transfer priority: `high`
+- Keep status: `active`
+- AI-box runtime: Model-specific PyTorch package (kokoro, chatterbox, qwen-tts, vibevoice, voxcpm) on AI box; Kokoro also runs on CPU/ONNX.
+- Size: `4.23 GiB`; payload files: `14`
+- Recommended use: Move to AI box for speech synthesis, narration, and voice cloning.
+- Notes: Start with Kokoro (tiny, fast) as the default voice; use Qwen3-TTS or Chatterbox for cloning.
+
+### `Qwen3-TTS-12Hz-1.7B-CustomVoice`
+
+- Repo: `Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice`
+- Location: `Speech-TTS`
+- Capability: Text-to-speech / voice
+- Library status: `verified_file_server_copy`
+- Transfer priority: `high`
+- Keep status: `active`
+- AI-box runtime: Model-specific PyTorch package (kokoro, chatterbox, qwen-tts, vibevoice, voxcpm) on AI box; Kokoro also runs on CPU/ONNX.
+- Size: `4.21 GiB`; payload files: `14`
+- Recommended use: Move to AI box for speech synthesis, narration, and voice cloning.
+- Notes: Start with Kokoro (tiny, fast) as the default voice; use Qwen3-TTS or Chatterbox for cloning.
+
+### `VibeVoice-1.5B`
+
+- Repo: `microsoft/VibeVoice-1.5B`
+- Location: `Speech-TTS`
+- Capability: Text-to-speech / voice
+- Library status: `verified_file_server_copy`
+- Transfer priority: `medium`
+- Keep status: `active`
+- AI-box runtime: Model-specific PyTorch package (kokoro, chatterbox, qwen-tts, vibevoice, voxcpm) on AI box; Kokoro also runs on CPU/ONNX.
+- Size: `5.04 GiB`; payload files: `10`
+- Recommended use: Move to AI box for speech synthesis, narration, and voice cloning.
+- Notes: Start with Kokoro (tiny, fast) as the default voice; use Qwen3-TTS or Chatterbox for cloning.
+
+### `VoxCPM2`
+
+- Repo: `openbmb/VoxCPM2`
+- Location: `Speech-TTS`
+- Capability: Text-to-speech / voice
+- Library status: `verified_file_server_copy`
+- Transfer priority: `medium`
+- Keep status: `active`
+- AI-box runtime: Model-specific PyTorch package (kokoro, chatterbox, qwen-tts, vibevoice, voxcpm) on AI box; Kokoro also runs on CPU/ONNX.
+- Size: `4.62 GiB`; payload files: `10`
+- Recommended use: Move to AI box for speech synthesis, narration, and voice cloning.
+- Notes: Start with Kokoro (tiny, fast) as the default voice; use Qwen3-TTS or Chatterbox for cloning.
 
 ### `stable-video-diffusion-img2vid-xt-1-1`
 

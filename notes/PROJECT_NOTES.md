@@ -389,6 +389,27 @@ Environment repair (same day):
 - Homebrew `python@3.14` had been removed from the Mac, breaking `.venv` (dangling symlink; `source .venv/bin/activate` silently fell through to another Python without `yaml`). Rebuilt `.venv` from the uv-managed CPython 3.14.7 at `~/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none`; old venv kept as `.venv.broken-homebrew-python-<date>`.
 - The Mac had rebooted and the SMB model share was not remounted; remounted manually.
 
+## 2026-10-16 — Voice pack and AI-box gap downloads
+
+Downloaded and verified 15 models (112.17 GiB), 0 failures, staging empty, post-download audit 74 folders / 0 issues:
+
+- Speech-TTS (new category in use): Kokoro-82M, Qwen3-TTS-12Hz-1.7B-CustomVoice, Qwen3-TTS-12Hz-1.7B-Base, chatterbox, VibeVoice-1.5B, VoxCPM2
+- Speech-STT: parakeet-tdt-0.6b-v3, Qwen3-ASR-1.7B, Nemotron-3-Diarization, silero-vad
+- Rerankers (first model): Qwen3-VL-Reranker-2B
+- Embeddings: embeddinggemma-2
+- LLM: Qwen3.8-27B-UD-Q4_K_XL, gemma-4-26B-A4B-it-UD-Q4_K_XL (single quant + mmproj-F16 from the unsloth GGUF repos)
+- Diffusion-Image: Qwen-Image-2.1
+
+Not downloaded: `pyannote/speaker-diarization-community-1` returns 403 until David accepts its terms on Hugging Face.
+
+Tooling:
+
+- `hf_model_manager.py download --folder-name` sets the local folder (recorded as `local_folder_name`), for single-quant downloads from multi-quant GGUF repos.
+- Size estimate now honours `--allow-pattern`/`--ignore-pattern`, so filtered GGUF downloads still use local staging.
+- Batch script: `scripts/batches/2026-10-voice-and-gaps.sh`. Transfer manifest for the voice pack (41.74 GiB) generated under `transfer-manifests/`.
+- Capability/transfer docs now recognise Speech-TTS, Rerankers, diarisation/VAD, non-Whisper STT and Qwen-Image.
+- Share free space after batch: 3.4 TiB (97% used).
+
 ## 2026-10-16 — Massive scan + voice review
 
 - Full scan (`research --label massive --limit 15 --openrouter refresh --openrouter-candidates 20`): 2,114 candidates; 12 Download Now, 25 Archive, 257 Watch (42 of these already in the library).

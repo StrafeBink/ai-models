@@ -1,50 +1,55 @@
 # Model Storage Dashboard
 
-- Total downloaded model folders: `56`
-- Total measured size: `3597.08 GiB` (`3.51 TiB`)
+- Total downloaded model folders: `71`
+- Total measured size: `3709.25 GiB` (`3.62 TiB`)
 - Role: file-server storage for models that are manually copied to the AI box as needed.
 
 ## Size by transfer priority
 
 | Transfer priority | Size | Share |
 |---|---:|---:|
-| `high` | 367.27 GiB | 10.2% |
-| `medium` | 655.86 GiB | 18.2% |
+| `high` | 394.30 GiB | 10.6% |
+| `medium` | 741.00 GiB | 20.0% |
 | `review` | 0.00 GiB | 0.0% |
-| `archive_only` | 2573.95 GiB | 71.6% |
+| `archive_only` | 2573.95 GiB | 69.4% |
 
 ## Size by location
 
 | Location | Size | Share |
 |---|---:|---:|
-| Archive-Huge/LLM | 2367.23 GiB | 65.8% |
-| Diffusion-Image | 562.27 GiB | 15.6% |
-| LLM | 183.11 GiB | 5.1% |
-| Archive-Huge/Multimodal | 120.50 GiB | 3.3% |
-| Coding | 88.86 GiB | 2.5% |
-| Archive-Huge/Coding | 86.22 GiB | 2.4% |
-| Speech-STT | 52.79 GiB | 1.5% |
+| Archive-Huge/LLM | 2367.23 GiB | 63.8% |
+| Diffusion-Image | 593.13 GiB | 16.0% |
+| LLM | 217.29 GiB | 5.9% |
+| Archive-Huge/Multimodal | 120.50 GiB | 3.2% |
+| Coding | 88.86 GiB | 2.4% |
+| Archive-Huge/Coding | 86.22 GiB | 2.3% |
+| Speech-STT | 63.18 GiB | 1.7% |
 | Audio | 43.54 GiB | 1.2% |
-| Embeddings | 39.35 GiB | 1.1% |
+| Embeddings | 40.77 GiB | 1.1% |
+| Speech-TTS | 31.35 GiB | 0.8% |
 | Multimodal | 28.77 GiB | 0.8% |
 | Video | 17.06 GiB | 0.5% |
 | Vision-OCR | 6.32 GiB | 0.2% |
+| Rerankers | 3.98 GiB | 0.1% |
 | Safety-Moderation | 1.05 GiB | 0.0% |
 
 ## Size by capability
 
 | Capability | Size | Share |
 |---|---:|---:|
-| LLM / reasoning-chat | 2550.35 GiB | 70.9% |
-| Image generation/editing | 562.27 GiB | 15.6% |
-| Coding LLM | 175.08 GiB | 4.9% |
-| Multimodal / vision-language | 149.27 GiB | 4.1% |
-| Speech-to-text | 52.79 GiB | 1.5% |
+| LLM / reasoning-chat | 2584.52 GiB | 69.7% |
+| Image generation/editing | 593.13 GiB | 16.0% |
+| Coding LLM | 175.08 GiB | 4.7% |
+| Multimodal / vision-language | 149.27 GiB | 4.0% |
+| Speech-to-text | 62.51 GiB | 1.7% |
 | Audio generation / audio model | 43.54 GiB | 1.2% |
-| Embeddings / retrieval | 39.35 GiB | 1.1% |
+| Embeddings / retrieval | 40.77 GiB | 1.1% |
+| Text-to-speech / voice | 31.35 GiB | 0.8% |
 | Video generation | 17.06 GiB | 0.5% |
 | OCR / document extraction | 6.32 GiB | 0.2% |
+| Reranking / retrieval | 3.98 GiB | 0.1% |
 | Prompt safety / moderation | 1.05 GiB | 0.0% |
+| Speaker diarisation / voice activity | 0.67 GiB | 0.0% |
 
 ## Top 15 largest folders
 

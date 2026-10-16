@@ -40,6 +40,26 @@ Archive-Huge/LLM/DeepSeek-R1
 
 These include small AI-box runtime/coding candidates plus two large strategic archives.
 
+October 2026 voice pack and gap fill:
+
+```text
+Speech-TTS/Kokoro-82M, Qwen3-TTS-12Hz-1.7B-CustomVoice, Qwen3-TTS-12Hz-1.7B-Base, chatterbox, VibeVoice-1.5B, VoxCPM2
+Speech-STT/parakeet-tdt-0.6b-v3, Qwen3-ASR-1.7B, Nemotron-3-Diarization, silero-vad
+Rerankers/Qwen3-VL-Reranker-2B
+Embeddings/embeddinggemma-2
+LLM/Qwen3.8-27B-UD-Q4_K_XL, LLM/gemma-4-26B-A4B-it-UD-Q4_K_XL
+Diffusion-Image/Qwen-Image-2.1
+```
+
+Download a single quant from a multi-quant GGUF repo with `--folder-name` and `--allow-pattern`, for example:
+
+```bash
+python scripts/hf_model_manager.py download unsloth/Qwen3.8-27B-GGUF --category LLM \
+  --folder-name Qwen3.8-27B-UD-Q4_K_XL \
+  --allow-pattern 'Qwen3.8-27B-UD-Q4_K_XL.gguf' --allow-pattern 'mmproj-F16.gguf' \
+  --execute --resume --staging-dir download-staging --staging-copy-method rsync-inplace
+```
+
 ## Taxonomy
 
 Top-level model categories:

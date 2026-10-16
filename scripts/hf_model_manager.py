@@ -515,9 +515,19 @@ def cmd_research(args: argparse.Namespace) -> None:
         print(f"  {outcome}: {sum(1 for c in candidates if c.recommendation == outcome)}")
 
 
-def snapshot_size_gib(info: Any) -> float | None:
+def snapshot_size_gib(info: Any, allow: list[str] | None = None, ignore: list[str] | None = None) -> float | None:
+    """Total size of the snapshot files that a download with these patterns would fetch."""
+    from fnmatch import fnmatch
+
     siblings = getattr(info, "siblings", None) or []
-    sizes = [getattr(s, "size", None) for s in siblings]
+    sizes = []
+    for s in siblings:
+        name = getattr(s, "rfilename", "")
+        if allow and not any(fnmatch(name, p) for p in allow):
+            continue
+        if ignore and any(fnmatch(name, p) for p in ignore):
+            continue
+        sizes.append(getattr(s, "size", None))
     known = [s for s in sizes if isinstance(s, int)]
     if not known:
         return None
@@ -625,11 +635,12 @@ def cmd_download(args: argparse.Namespace) -> None:
             "then rerun with --confirm-gated-access."
         )
 
+    folder = args.folder_name or safe_folder_name(repo_id)
     if args.archive:
         family = category if category in cfg.get("archive_subfolders", []) else "Unsorted-Pending-Review"
-        target = root / "Archive-Huge" / family / safe_folder_name(repo_id)
+        target = root / "Archive-Huge" / family / folder
     else:
-        target = root / category / safe_folder_name(repo_id)
+        target = root / category / folder
 
     if target.exists() and not args.resume:
         raise SystemExit(f"Target already exists: {target}. Use --resume to continue/update.")
@@ -638,7 +649,7 @@ def cmd_download(args: argparse.Namespace) -> None:
         print("Use --force-update with --resume to refresh/re-download this target.")
         return
 
-    size_gib = snapshot_size_gib(info)
+    size_gib = snapshot_size_gib(info, args.allow_pattern, args.ignore_pattern)
     target_has_partial = target.exists() and not (target / "_hermes_model_metadata.json").exists()
     use_staging = False
     download_dir = target
@@ -693,6 +704,8 @@ def cmd_download(args: argparse.Namespace) -> None:
         "staging_copy_method": args.staging_copy_method if use_staging else None,
         "excluded_staging_cache_from_target": args.exclude_staging_cache if use_staging else None,
     }
+    if args.folder_name:
+        metadata["local_folder_name"] = args.folder_name
     (download_dir / "_hermes_model_metadata.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
     if use_staging:
         print(f"Copying staged download to final target: {target}")
@@ -732,6 +745,7 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("repo_id")
     s.add_argument("--category", help="Override category destination")
     s.add_argument("--archive", action="store_true", help="Place under Archive-Huge/<category>/")
+    s.add_argument("--folder-name", help="Local folder name (e.g. Qwen3.8-27B-UD-Q4_K_XL for a single quant). Recorded as local_folder_name in metadata.")
     s.add_argument("--allow-pattern", action="append", help="hf snapshot allow pattern; repeatable")
     s.add_argument("--ignore-pattern", action="append", default=["*.msgpack", "*.h5"], help="hf snapshot ignore pattern; repeatable")
     s.add_argument("--confirm-gated-access", action="store_true", help="Assert the user has approved this gated model on Hugging Face")

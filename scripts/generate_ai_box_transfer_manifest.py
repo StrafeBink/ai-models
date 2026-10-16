@@ -73,6 +73,12 @@ def runtime_hint(selector: str, repo_id: str) -> str:
         return "sentence-transformers/transformers on AI box; GGUF embedding runtime for GGUF quants"
     if "prompt-guard" in text:
         return "transformers sequence-classification on AI box"
+    if text.startswith("speech-tts/") or any(x in text for x in ["tts", "kokoro", "chatterbox", "vibevoice", "voxcpm"]):
+        return "model-specific TTS package (kokoro / chatterbox / qwen-tts / vibevoice / voxcpm) on AI box"
+    if "diariz" in text or "vad" in text:
+        return "NeMo / ONNX runtime on AI box (tiny; CPU is fine)"
+    if "parakeet" in text:
+        return "NVIDIA NeMo on AI box"
     if "whisper" in text or "asr" in text:
         return "faster-whisper preferred; transformers fallback"
     if "ocr" in text:

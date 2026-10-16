@@ -86,7 +86,42 @@ def classify(row: dict[str, Any]) -> ModelCard:
         keep = "strategic_archive"
         notes = "Strategic archive/future-hardware store. Do not transfer routinely unless specifically needed."
 
-    if "embedding" in lower or "minilm" in lower or "mpnet" in lower:
+    if loc.endswith("Speech-TTS"):
+        capability = "Text-to-speech / voice"
+        use = "Move to AI box for speech synthesis, narration, and voice cloning."
+        runtime = "Model-specific PyTorch package (kokoro, chatterbox, qwen-tts, vibevoice, voxcpm) on AI box; Kokoro also runs on CPU/ONNX."
+        priority = "high" if any(x in lower for x in ["kokoro", "qwen3-tts", "chatterbox"]) else "medium"
+        keep = "active"
+        notes = "Start with Kokoro (tiny, fast) as the default voice; use Qwen3-TTS or Chatterbox for cloning."
+    elif loc.endswith("Rerankers"):
+        capability = "Reranking / retrieval"
+        use = "Move to AI box to rerank RAG search results after the embedding step."
+        runtime = "transformers/sentence-transformers cross-encoder on AI box."
+        priority = "medium"
+        keep = "active"
+        notes = "Pair with an embedding model; benchmark retrieval quality with and without reranking."
+    elif loc.endswith("Speech-STT") and any(x in lower for x in ["diariz", "vad"]):
+        capability = "Speaker diarisation / voice activity"
+        use = "Move to AI box alongside an STT model to split speakers and detect speech."
+        runtime = "NeMo / ONNX runtime on AI box (very small; CPU is fine)."
+        priority = "medium"
+        keep = "active"
+        notes = "Small helper models for transcription pipelines."
+    elif loc.endswith("Speech-STT") and "whisper" not in lower:
+        capability = "Speech-to-text"
+        use = "Move to AI box for transcription/STT testing."
+        runtime = "NeMo (parakeet/nemotron) or transformers (Qwen3-ASR) on AI box."
+        priority = "high" if "parakeet" in lower else "medium"
+        keep = "active"
+        notes = "Benchmark against whisper-large-v3-turbo for speed and accuracy."
+    elif loc.endswith("Diffusion-Image") and "qwen-image" in lower:
+        capability = "Image generation/editing"
+        use = "Move to AI box for ComfyUI/diffusers image generation and editing."
+        runtime = "ComfyUI or diffusers on AI box."
+        priority = "medium"
+        keep = "active"
+        notes = "Large DiT model; needs CPU offload on small-VRAM GPUs."
+    elif "embedding" in lower or "minilm" in lower or "mpnet" in lower:
         capability = "Embeddings / retrieval"
         use = "Move to AI box for semantic search, RAG retrieval, clustering, similarity."
         runtime = "sentence-transformers/transformers on AI box; GGUF embedding runtime for GGUF quants."
