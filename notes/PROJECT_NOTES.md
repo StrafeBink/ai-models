@@ -388,3 +388,11 @@ Environment repair (same day):
 
 - Homebrew `python@3.14` had been removed from the Mac, breaking `.venv` (dangling symlink; `source .venv/bin/activate` silently fell through to another Python without `yaml`). Rebuilt `.venv` from the uv-managed CPython 3.14.7 at `~/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none`; old venv kept as `.venv.broken-homebrew-python-<date>`.
 - The Mac had rebooted and the SMB model share was not remounted; remounted manually.
+
+## 2026-10-16 — Massive scan + voice review
+
+- Full scan (`research --label massive --limit 15 --openrouter refresh --openrouter-candidates 20`): 2,114 candidates; 12 Download Now, 25 Archive, 257 Watch (42 of these already in the library).
+- Voice scan (`--category Speech-TTS --category Speech-STT --category Audio --limit 40`): 906 candidates. `Speech-TTS` is empty in the library, and Rerankers, Agents-ToolUse, Computer-Vision and Time-Series also hold no models.
+- Scorer fixes: trusted-org match is now case-insensitive (`Tencent` never matched `tencent/...`); `Speech-TTS` is a priority category; added voice specialists (hexgrad, ResembleAI, k2-fsa, openbmb, fishaudio, kyutai, pyannote, ...) and top OpenRouter labs to `trusted_orgs`. Before this, Kokoro-82M, Chatterbox, OmniVoice and VoxCPM2 all scored "Ignore".
+- Dedupe now prefers the candidate record that knows the snapshot size, so size penalties are not lost (DeepSeek-V4-Flash-0731, 155 GiB, had shown as Download Now).
+- Share free space: 3.6 TiB of 92 TiB (97% used).

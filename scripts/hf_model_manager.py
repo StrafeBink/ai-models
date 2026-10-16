@@ -198,7 +198,7 @@ def category_for_model(cfg: dict[str, Any], repo_id: str, tags: list[str], pipel
 
 def score_candidate(cfg: dict[str, Any], repo_id: str, category: str, tags: list[str], downloads: int | None, likes: int | None, gated: str, pipeline_tag: str | None, or_usage: dict[str, Any] | None = None, size_gib: float | None = None) -> tuple[int, int, str, str]:
     org = repo_id.split("/", 1)[0]
-    trusted = org in set(cfg.get("trusted_orgs", []))
+    trusted = org.lower() in {o.lower() for o in cfg.get("trusted_orgs", [])}
     tag_text = " ".join(tags).lower()
     downloads = downloads or 0
     likes = likes or 0
@@ -229,7 +229,7 @@ def score_candidate(cfg: dict[str, Any], repo_id: str, category: str, tags: list
         score += 18
         reasons.append("local/quant tooling signal")
 
-    if category in {"Embeddings", "Rerankers", "Coding", "LLM", "Speech-STT", "Vision-OCR"}:
+    if category in {"Embeddings", "Rerankers", "Coding", "LLM", "Speech-STT", "Speech-TTS", "Vision-OCR"}:
         score += 10
         reasons.append("priority category")
     if gated not in {"False", "false", "None", "none"}:
@@ -330,7 +330,11 @@ def dedupe(candidates: list[Candidate]) -> list[Candidate]:
     best: dict[str, Candidate] = {}
     for c in candidates:
         old = best.get(c.repo_id)
-        if old is None or (c.score + c.archive_score) > (old.score + old.archive_score):
+        # Prefer the record that knows the snapshot size (it includes size penalties),
+        # then the higher combined score.
+        if old is None or (c.size_gib is not None and old.size_gib is None) or (
+            (c.size_gib is None) == (old.size_gib is None) and (c.score + c.archive_score) > (old.score + old.archive_score)
+        ):
             best[c.repo_id] = c
     return sorted(best.values(), key=lambda c: (c.recommendation != "Download Now", -(c.score + c.archive_score), c.repo_id.lower()))
 

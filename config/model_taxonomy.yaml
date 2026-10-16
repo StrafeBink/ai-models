@@ -141,6 +141,26 @@ trusted_orgs:
   - sentence-transformers
   - microsoft
   - openai
+  # Voice / speech specialists (added after the voice scan showed them scored as Ignore)
+  - hexgrad
+  - ResembleAI
+  - k2-fsa
+  - openbmb
+  - nari-labs
+  - fishaudio
+  - kyutai
+  - FunAudioLLM
+  - pyannote
+  - SWivid
+  - IndexTeam
+  - bosonai
+  - LiquidAI
+  - CohereLabs
+  # Labs whose open-weight models are among the most used on OpenRouter
+  - zai-org
+  - XiaomiMiMo
+  - MiniMaxAI
+  - stepfun-ai
 
 recommendation_thresholds:
   download_now_score: 70
