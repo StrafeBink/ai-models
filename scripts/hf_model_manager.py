@@ -54,6 +54,75 @@ class Candidate:
     last_modified: str | None
     reason: str
     url: str
+    openrouter_id: str | None = None
+    openrouter_tokens_7d: int | None = None
+    openrouter_trend_pct: float | None = None
+    openrouter_match: str | None = None  # "direct" or "base_model"
+    size_gib: float | None = None
+
+
+OPENROUTER_LATEST = DEFAULT_REPORT_DIR / "openrouter-usage-latest.json"
+OPENROUTER_MAX_AGE_DAYS = 14
+
+
+def load_openrouter_index(path: Path = OPENROUTER_LATEST, max_age_days: int = OPENROUTER_MAX_AGE_DAYS) -> dict[str, Any]:
+    """Load the latest OpenRouter usage snapshot keyed by lower-case Hugging Face repo id.
+
+    Returns {} when the snapshot is missing or stale, so research still works offline.
+    """
+    if not path.exists():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        generated = datetime.fromisoformat(data["generated_at"])
+    except Exception:
+        return {}
+    if (datetime.now(timezone.utc) - generated).days > max_age_days:
+        print(f"WARN: OpenRouter snapshot is older than {max_age_days} days; ignoring it", file=sys.stderr)
+        return {}
+    index: dict[str, Any] = {"_meta": {"generated_at": data["generated_at"], "path": str(path)}, "_models": []}
+    for m in data.get("models", []):
+        hf_id = m.get("hugging_face_id")
+        if hf_id and m.get("usage"):
+            index[hf_id.lower()] = m
+            index["_models"].append(m)
+    return index
+
+
+def openrouter_lookup(index: dict[str, Any], repo_id: str, tags: list[str]) -> tuple[dict[str, Any] | None, str | None]:
+    """Match a HF repo to OpenRouter usage directly, or via its `base_model:` tags (quants/finetunes)."""
+    if not index:
+        return None, None
+    hit = index.get(repo_id.lower())
+    if hit:
+        return hit, "direct"
+    for tag in tags:
+        if tag.startswith("base_model:"):
+            base = tag.split(":")[-1].lower()
+            if base in index:
+                return index[base], "base_model"
+    return None, None
+
+
+def openrouter_points(usage: dict[str, Any] | None) -> tuple[int, int, list[str]]:
+    """Runnable-score points, archive-score points and reasons from OpenRouter adoption."""
+    if not usage:
+        return 0, 0, []
+    t7 = int(usage.get("tokens_7d") or 0)
+    trend = usage.get("trend_7d_pct")
+    if t7 >= 1_000_000_000_000:
+        s, a, label = 12, 15, "very high OpenRouter usage"
+    elif t7 >= 100_000_000_000:
+        s, a, label = 8, 10, "high OpenRouter usage"
+    elif t7 >= 10_000_000_000:
+        s, a, label = 4, 5, "meaningful OpenRouter usage"
+    else:
+        return 0, 0, []
+    reasons = [f"{label} ({t7 / 1e9:,.0f}B tokens/7d)"]
+    if trend is not None and trend >= 50:
+        s += 4
+        reasons.append(f"rising on OpenRouter ({trend:+.0f}% w/w)")
+    return s, a, reasons
 
 
 def load_config(path: Path) -> dict[str, Any]:
@@ -127,7 +196,7 @@ def category_for_model(cfg: dict[str, Any], repo_id: str, tags: list[str], pipel
     return "LLM" if (pipeline_tag == "text-generation" or "text-generation" in tags) else "Unsorted-Pending-Review"
 
 
-def score_candidate(cfg: dict[str, Any], repo_id: str, category: str, tags: list[str], downloads: int | None, likes: int | None, gated: str, pipeline_tag: str | None) -> tuple[int, int, str, str]:
+def score_candidate(cfg: dict[str, Any], repo_id: str, category: str, tags: list[str], downloads: int | None, likes: int | None, gated: str, pipeline_tag: str | None, or_usage: dict[str, Any] | None = None, size_gib: float | None = None) -> tuple[int, int, str, str]:
     org = repo_id.split("/", 1)[0]
     trusted = org in set(cfg.get("trusted_orgs", []))
     tag_text = " ".join(tags).lower()
@@ -181,6 +250,21 @@ def score_candidate(cfg: dict[str, Any], repo_id: str, category: str, tags: list
     if gated not in {"False", "false", "None", "none"}:
         archive_score += 6
 
+    or_score, or_archive, or_reasons = openrouter_points(or_usage)
+    score += or_score
+    archive_score += or_archive
+    reasons.extend(or_reasons)
+
+    # Popular-on-OpenRouter models are often far too big for the AI box. When the
+    # snapshot size is known, keep them out of "Download Now" unless they fit.
+    if size_gib is not None:
+        if size_gib > 200:
+            score -= 25
+            reasons.append(f"very large ({size_gib:.0f} GiB): archive-scale, not AI-box runnable")
+        elif size_gib > 80:
+            score -= 12
+            reasons.append(f"large ({size_gib:.0f} GiB): likely needs a quant to run on the AI box")
+
     thresholds = cfg.get("recommendation_thresholds", {})
     if archive_score >= thresholds.get("archive_score", 75) and score < thresholds.get("download_now_score", 70):
         rec = "Archive"
@@ -191,10 +275,10 @@ def score_candidate(cfg: dict[str, Any], repo_id: str, category: str, tags: list
     else:
         rec = "Ignore"
 
-    return min(score, 100), min(archive_score, 100), rec, ", ".join(reasons) or "low available signal"
+    return max(0, min(score, 100)), min(archive_score, 100), rec, ", ".join(reasons) or "low available signal"
 
 
-def model_to_candidate(cfg: dict[str, Any], model: Any, model_root: Path) -> Candidate:
+def model_to_candidate(cfg: dict[str, Any], model: Any, model_root: Path, or_index: dict[str, Any] | None = None) -> Candidate:
     repo_id = model.id
     tags = list(getattr(model, "tags", []) or [])
     pipeline_tag = getattr(model, "pipeline_tag", None)
@@ -204,7 +288,10 @@ def model_to_candidate(cfg: dict[str, Any], model: Any, model_root: Path) -> Can
     downloads = getattr(model, "downloads", None)
     likes = getattr(model, "likes", None)
     license_name = parse_license(tags)
-    score, archive_score, rec, reason = score_candidate(cfg, repo_id, category, tags, downloads, likes, gated, pipeline_tag)
+    or_rec, or_match = openrouter_lookup(or_index or {}, repo_id, tags)
+    or_usage = (or_rec or {}).get("usage")
+    size_gib = snapshot_size_gib(model) if getattr(model, "siblings", None) else None
+    score, archive_score, rec, reason = score_candidate(cfg, repo_id, category, tags, downloads, likes, gated, pipeline_tag, or_usage, size_gib)
     folder_category = "Archive-Huge" if rec == "Archive" else category
     if folder_category == "Archive-Huge":
         suggested = model_root / "Archive-Huge" / (category if category != "Unsorted-Pending-Review" else "Unsorted-Pending-Review") / safe_folder_name(repo_id)
@@ -231,6 +318,11 @@ def model_to_candidate(cfg: dict[str, Any], model: Any, model_root: Path) -> Can
         last_modified=stringify_dt(getattr(model, "last_modified", None)),
         reason=reason,
         url=f"https://huggingface.co/{repo_id}",
+        openrouter_id=(or_rec or {}).get("openrouter_id"),
+        openrouter_tokens_7d=(or_usage or {}).get("tokens_7d"),
+        openrouter_trend_pct=(or_usage or {}).get("trend_7d_pct"),
+        openrouter_match=or_match,
+        size_gib=size_gib,
     )
 
 
@@ -292,7 +384,7 @@ def cmd_status(args: argparse.Namespace) -> None:
         print(f"HF login: PROBLEM - {type(e).__name__}: {e}")
 
 
-def research_for_category(api: HfApi, cfg: dict[str, Any], model_root: Path, category: str, limit: int) -> list[Candidate]:
+def research_for_category(api: HfApi, cfg: dict[str, Any], model_root: Path, category: str, limit: int, or_index: dict[str, Any] | None = None) -> list[Candidate]:
     meta = cfg["categories"][category]
     found = []
     tasks = meta.get("hf_tasks") or []
@@ -313,16 +405,51 @@ def research_for_category(api: HfApi, cfg: dict[str, Any], model_root: Path, cat
                 found.extend(api.list_models(search=term, sort=sort_key, limit=limit, full=True))
             except Exception as e:
                 print(f"WARN: text search failed for {category}/{term}/{sort_key}: {e}", file=sys.stderr)
-    return [model_to_candidate(cfg, m, model_root) for m in found]
+    return [model_to_candidate(cfg, m, model_root, or_index) for m in found]
 
 
-def write_reports(candidates: list[Candidate], report_dir: Path, label: str) -> tuple[Path, Path]:
+def openrouter_gap_candidates(cfg: dict[str, Any], model_root: Path, or_index: dict[str, Any], limit: int) -> list[Candidate]:
+    """Score the most-used open-weight OpenRouter models that are not in the library yet.
+
+    These may not surface in Hugging Face task/search listings, so fetch them directly.
+    """
+    if not or_index or limit <= 0:
+        return []
+    models = sorted(or_index.get("_models", []), key=lambda m: m["usage"]["tokens_7d"], reverse=True)
+    gaps = [m for m in models if m.get("local_status") == "missing" and m["usage"]["tokens_7d"] >= 10_000_000_000]
+    out: list[Candidate] = []
+    for m in gaps[:limit]:
+        try:
+            info = model_info(m["hugging_face_id"], files_metadata=True)
+        except Exception as e:
+            print(f"WARN: OpenRouter gap {m['hugging_face_id']} not resolvable on HF: {type(e).__name__}", file=sys.stderr)
+            continue
+        out.append(model_to_candidate(cfg, info, model_root, or_index))
+    return out
+
+
+def openrouter_report_lines(or_index: dict[str, Any]) -> list[str]:
+    if not or_index:
+        return ["## OpenRouter usage", "", "- No fresh OpenRouter snapshot (run `python scripts/openrouter_usage.py`).", ""]
+    models = sorted(or_index.get("_models", []), key=lambda m: m["usage"]["tokens_7d"], reverse=True)
+    lines = ["## OpenRouter usage (real-world adoption, last 7 days)", "", f"Snapshot: `{or_index['_meta']['generated_at']}`", ""]
+    lines += ["Top open-weight models on OpenRouter:", ""]
+    for m in models[:15]:
+        u = m["usage"]
+        trend = f"{u['trend_7d_pct']:+.0f}%" if u.get("trend_7d_pct") is not None else "new"
+        lines.append(f"- `{m['hugging_face_id']}` — {u['tokens_7d'] / 1e9:,.0f}B tokens ({trend}) · library: **{m.get('local_status')}**")
+    lines.append("")
+    return lines
+
+
+def write_reports(candidates: list[Candidate], report_dir: Path, label: str, or_index: dict[str, Any] | None = None) -> tuple[Path, Path]:
     report_dir.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%SZ")
     json_path = report_dir / f"model-research-{label}-{stamp}.json"
     md_path = report_dir / f"model-research-{label}-{stamp}.md"
     json_path.write_text(json.dumps([asdict(c) for c in candidates], indent=2), encoding="utf-8")
     lines = [f"# Model Research Report ({label})", "", f"Generated: {stamp}", ""]
+    lines += openrouter_report_lines(or_index or {})
     for outcome in ["Download Now", "Archive", "Watch", "Ignore"]:
         group = [c for c in candidates if c.recommendation == outcome]
         lines += [f"## {outcome} ({len(group)})", ""]
@@ -333,6 +460,14 @@ def write_reports(candidates: list[Candidate], report_dir: Path, label: str) -> 
                 f"- Score: runnable `{c.score}/100`, archive `{c.archive_score}/100`",
                 f"- Gated: `{c.gated}`; license: `{c.license or 'unknown'}`",
                 f"- Downloads/Likes: `{c.downloads}` / `{c.likes}`",
+            ]
+            if c.openrouter_tokens_7d is not None:
+                trend = f"{c.openrouter_trend_pct:+.0f}%" if c.openrouter_trend_pct is not None else "new"
+                via = " (via base model)" if c.openrouter_match == "base_model" else ""
+                lines.append(f"- OpenRouter: `{c.openrouter_id}` — {c.openrouter_tokens_7d / 1e9:,.1f}B tokens/7d ({trend}){via}")
+            if c.size_gib is not None:
+                lines.append(f"- Size: `{c.size_gib:.1f} GiB`")
+            lines += [
                 f"- Suggested folder: `{c.suggested_folder}`",
                 f"- URL: {c.url}",
                 f"- Reason: {c.reason}",
@@ -347,17 +482,28 @@ def cmd_research(args: argparse.Namespace) -> None:
     root = Path(cfg["model_root"])
     ensure_mount(root)
     api = HfApi()
+    if args.openrouter == "refresh":
+        print("Refreshing OpenRouter usage snapshot...")
+        subprocess.run([sys.executable, str(REPO_ROOT / "scripts" / "openrouter_usage.py")], check=False)
+    or_index = load_openrouter_index() if args.openrouter != "off" else {}
+    if or_index:
+        print(f"OpenRouter usage: {len(or_index['_models'])} open-weight models from {or_index['_meta']['generated_at']}")
+    elif args.openrouter != "off":
+        print("OpenRouter usage: no fresh snapshot; scoring without it")
     categories = args.category or [c for c in cfg["categories"] if c not in {"Archive-Huge", "RAG"}]
     candidates: list[Candidate] = []
     for category in categories:
         if category not in cfg["categories"]:
             raise SystemExit(f"Unknown category: {category}")
         print(f"Researching {category}...")
-        candidates.extend(research_for_category(api, cfg, root, category, args.limit))
+        candidates.extend(research_for_category(api, cfg, root, category, args.limit, or_index))
+    if or_index and args.openrouter_candidates:
+        print(f"Adding up to {args.openrouter_candidates} popular OpenRouter open-weight models not in the library...")
+        candidates.extend(openrouter_gap_candidates(cfg, root, or_index, args.openrouter_candidates))
     candidates = dedupe(candidates)
     if args.outcome:
         candidates = [c for c in candidates if c.recommendation in args.outcome]
-    json_path, md_path = write_reports(candidates, args.report_dir, args.label)
+    json_path, md_path = write_reports(candidates, args.report_dir, args.label, or_index)
     print(f"Wrote {json_path}")
     print(f"Wrote {md_path}")
     print(f"Candidates: {len(candidates)}")
@@ -574,6 +720,8 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--label", default="manual")
     s.add_argument("--report-dir", type=Path, default=DEFAULT_REPORT_DIR)
     s.add_argument("--outcome", action="append", choices=["Download Now", "Archive", "Watch", "Ignore"], help="Filter report to one or more outcomes")
+    s.add_argument("--openrouter", choices=["auto", "refresh", "off"], default="auto", help="Use OpenRouter usage as a scoring signal. auto = use reports/openrouter-usage-latest.json if <14 days old; refresh = re-collect first (~3 min); off = ignore")
+    s.add_argument("--openrouter-candidates", type=int, default=10, help="Also score the top N popular OpenRouter open-weight models missing from the library. 0 disables. Default: 10")
     s.set_defaults(func=cmd_research)
 
     s = sub.add_parser("download", help="Download and sort a model snapshot")

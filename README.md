@@ -226,6 +226,29 @@ transfer-manifests/
 
 They include source paths, size, payload file counts, destination placeholders, and post-copy verification checks.
 
+### OpenRouter usage statistics
+
+OpenRouter usage is used as a real-world adoption signal in research scoring:
+
+```bash
+python scripts/openrouter_usage.py                 # full snapshot, ~3 min, ~160 page fetches
+python scripts/openrouter_usage.py --rankings-only # weekly top-20 only, one page
+```
+
+Sources:
+
+- Official API `https://openrouter.ai/api/v1/models`: model list, pricing, context length, and `hugging_face_id` for open-weight models.
+- Public `openrouter.ai/rankings` and model pages: weekly top 20 and ~30 days of daily token usage. These are undocumented page-embedded data and may change; the collector records fetch errors and keeps going.
+
+Output: `reports/openrouter-usage-<stamp>.md/json` and `reports/openrouter-usage-latest.json`.
+
+`research` reads the latest snapshot automatically if it is less than 14 days old (`--openrouter auto`). Use `--openrouter refresh` to re-collect first, or `--openrouter off` to ignore it. It:
+
+- adds score points for ≥10B / ≥100B / ≥1T tokens per 7 days, plus a bonus when usage is up >50% week-over-week;
+- matches quants/finetunes to their base model via Hugging Face `base_model:` tags;
+- adds the top 10 popular open-weight OpenRouter models missing from the library as candidates (`--openrouter-candidates N`, 0 disables), with their size;
+- marks models over 80 GiB / 200 GiB down so they land in Watch/Archive rather than Download Now.
+
 ### Research Hugging Face models
 
 Research all active categories:

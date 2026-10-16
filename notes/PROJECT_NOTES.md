@@ -376,3 +376,15 @@ Operational notes:
 - Added `scripts/download_archive_per_file.py`, which downloads one file at a time to local staging, verifies local size, copies to SMB with `rsync --inplace`, verifies destination size, then removes the local staging file.
 - Installed `git-lfs` via Homebrew while investigating the large LFS failure path.
 - Sanitized generated logs so bearer tokens are redacted before any project search/commit.
+
+## 2026-10-16 — OpenRouter usage statistics in research scoring
+
+- Added `scripts/openrouter_usage.py`. Official `/api/v1/models` gives 465 models, 158 unique open-weight models with a `hugging_face_id`. The public rankings page and model pages embed weekly top-20 and ~30 days of daily token usage (undocumented; may break).
+- `hf_model_manager.py research` now uses the latest snapshot (<14 days) as a scoring signal, matches quants via `base_model:` tags, injects the top 10 popular missing open-weight models as candidates, and penalises >80 GiB / >200 GiB models so huge popular models land in Watch/Archive.
+- First snapshot: most-used open-weight models are DeepSeek-V4.1-Flash (~37T tokens/7d), Step-5-Preview, GLM-5.3-Flash, MiMo-V2.6-Flash, Hy4-preview. Kimi-K3 and gpt-oss-120b/20b are already in the library. Nearly all top open-weight models are 150–1,450 GiB, so they are archive-scale.
+- Weekly digest cron now runs `research --openrouter refresh` and adds an "OpenRouter adoption" section; daily radar uses `--openrouter-candidates 0` plus `openrouter_usage.py --rankings-only`.
+
+Environment repair (same day):
+
+- Homebrew `python@3.14` had been removed from the Mac, breaking `.venv` (dangling symlink; `source .venv/bin/activate` silently fell through to another Python without `yaml`). Rebuilt `.venv` from the uv-managed CPython 3.14.7 at `~/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none`; old venv kept as `.venv.broken-homebrew-python-<date>`.
+- The Mac had rebooted and the SMB model share was not remounted; remounted manually.
