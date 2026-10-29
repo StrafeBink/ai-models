@@ -429,6 +429,17 @@ Tooling:
 - Research supports per-category `search_sorts` and `max_search_terms`; Uncensored searches 6 terms by trending, likes, downloads and recency. Included in the weekly digest and daily radar crons (both cron prompts now use the mount script instead of an inline SMB string).
 - `audit_model_library.py` and presence checks understand the `Uncensored/<family>/` layout.
 
+## 2026-10-29 — Big frontier archive queue + Uncensored starter catalogue
+
+- First Uncensored scan (`research --category Uncensored --limit 60 --label uncensored --openrouter off`): 907 candidates, 890 routed to `Uncensored/*`, 174 Watch. Report `reports/model-research-uncensored-20261029-064943Z.*`.
+- Combined queue `scripts/batches/2026-10-queue-v3.sh` (supersedes v2; v2 stopped cleanly after Unlimited-OCR-2):
+  - AI-box picks: Unlimited-OCR-2, clef-flash, Qwen-Image-2.1-Turbo.
+  - Uncensored starter (~94 GiB, single quants): Huihui-Qwen3.8-27B-abliterated Q4_K, Qwen3.6-35B-A3B HauhauCS Aggressive Q4_K_M, Gemma4-26B-A4B-QAT HauhauCS Balanced, Gemma-4-E4B HauhauCS Q4_K_M, Qwen3.5-9B HauhauCS Q4_K_M, gpt-oss-20b abliterated NEO IQ4_NL (DavidAU), Qwen-Image-2.1-Uncensored Q8_0 + int8 text encoder + VAE.
+  - Archives: DeepSeek-V4-Flash-0731, Qwen3.8-Flash-Next-FP4-Local, MiniMax-M3.1-Flash, GLM-5.3-Flash, DeepSeek-V4.1-Flash-1017, MiMo-V2.6-Pro-RL (534 GiB), Step-5-Preview (606 GiB), Beam-1.0-501B-A23B (934 GiB), Hy4-preview (1,453 GiB), Muse-Spark-Open-816B-A42B (1,531 GiB, gated manual — needs David's HF approval; queued last).
+  - ~6.4 TiB total; leaves ~3 TiB free of 98 TiB.
+- After the Unraid restart, SMB copy speed fell from ~34 MB/s to ~4 MB/s (server side; likely a parity check). At 4 MB/s the queue would take ~3 weeks.
+- Fixes: research presence checks now list the library once per run (was thousands of SMB lookups per scan); Coding rule no longer matches "text-encoder".
+
 ## 2026-10-16 — Massive scan + voice review
 
 - Full scan (`research --label massive --limit 15 --openrouter refresh --openrouter-candidates 20`): 2,114 candidates; 12 Download Now, 25 Archive, 257 Watch (42 of these already in the library).

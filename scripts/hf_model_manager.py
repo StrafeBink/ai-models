@@ -161,24 +161,39 @@ def stringify_dt(value: Any) -> str | None:
     return str(value)
 
 
+_PRESENCE_CACHE: dict[str, dict[str, str]] = {}
+
+
+def _library_index(model_root: Path) -> dict[str, str]:
+    """Folder name -> path for every model folder, listed once per run.
+
+    Avoids thousands of per-candidate SMB lookups during research (which slow
+    active copies to the share).
+    """
+    key = str(model_root)
+    if key not in _PRESENCE_CACHE:
+        index: dict[str, str] = {}
+        nested = {"Archive-Huge", "Uncensored"}
+        for cat in sorted(p for p in model_root.iterdir() if p.is_dir()) if model_root.exists() else []:
+            for child in (p for p in cat.iterdir() if p.is_dir()):
+                if cat.name in nested:
+                    for model_dir in (p for p in child.iterdir() if p.is_dir()):
+                        index.setdefault(model_dir.name, str(model_dir))
+                else:
+                    index.setdefault(child.name, str(child))
+        _PRESENCE_CACHE[key] = index
+    return _PRESENCE_CACHE[key]
+
+
 def local_presence(model_root: Path, repo_id: str) -> tuple[bool, str | None]:
-    name = safe_folder_name(repo_id)
-    for child in model_root.glob(f"*/{name}"):
-        if child.is_dir():
-            return True, str(child)
-    for child in (model_root / "Archive-Huge").glob(f"*/{name}") if (model_root / "Archive-Huge").exists() else []:
-        if child.is_dir():
-            return True, str(child)
-    for child in (model_root / "Uncensored").glob(f"*/{name}") if (model_root / "Uncensored").exists() else []:
-        if child.is_dir():
-            return True, str(child)
-    return False, None
+    path = _library_index(model_root).get(safe_folder_name(repo_id))
+    return (True, path) if path else (False, None)
 
 
 def category_for_model(cfg: dict[str, Any], repo_id: str, tags: list[str], pipeline_tag: str | None) -> str:
     text = " ".join([repo_id, pipeline_tag or "", *tags]).lower()
     rules = [
-        ("Coding", ["coder", "coding", "code-generation", "codegen", "programming", "program synthesis", "code llama", "deepseek-coder", "qwen-coder"]),
+        ("Coding", ["re:(?<![a-z])coder", "coding", "code-generation", "codegen", "programming", "program synthesis", "code llama", "deepseek-coder", "qwen-coder"]),
         ("Embeddings", ["embedding", "sentence-similarity", "sentence-transformers", "retrieval"]),
         ("Rerankers", ["reranker", "reranking", "cross-encoder"]),
         ("Speech-STT", ["automatic-speech-recognition", "whisper", "asr"]),
@@ -194,7 +209,7 @@ def category_for_model(cfg: dict[str, Any], repo_id: str, tags: list[str], pipel
         ("Agents-ToolUse", ["tool-calling", "function-calling", "agent", "computer-use"]),
     ]
     for category, needles in rules:
-        if any(n in text for n in needles) and category in cfg["categories"]:
+        if any((re.search(n[3:], text) if n.startswith("re:") else n in text) for n in needles) and category in cfg["categories"]:
             return uncensored_route(cfg, text, pipeline_tag, category)
     family = "LLM" if (pipeline_tag == "text-generation" or "text-generation" in tags) else "Unsorted-Pending-Review"
     return uncensored_route(cfg, text, pipeline_tag, family)
