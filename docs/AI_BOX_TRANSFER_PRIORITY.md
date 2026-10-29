@@ -36,6 +36,7 @@ Use this when deciding what to manually copy from the file-server library to the
 | Model | Capability | Size | AI-box runtime | Why copy / why keep |
 |---|---|---:|---|---|
 | `silero-vad` | Speaker diarisation / voice activity | 0.01 GiB | NeMo / ONNX runtime on AI box (very small; CPU is fine). | Small helper models for transcription pipelines. |
+| `speaker-diarization-community-1` | Speaker diarisation / voice activity | 0.03 GiB | NeMo / ONNX runtime on AI box (very small; CPU is fine). | Small helper models for transcription pipelines. |
 | `Nemotron-3-Diarization` | Speaker diarisation / voice activity | 0.66 GiB | NeMo / ONNX runtime on AI box (very small; CPU is fine). | Small helper models for transcription pipelines. |
 | `embeddinggemma-300m` | Embeddings / retrieval | 1.18 GiB | sentence-transformers/transformers on AI box; GGUF embedding runtime for GGUF quants. | Copy small baseline first; benchmark retrieval quality before choosing the default embedding model. |
 | `all-MiniLM-L12-v2` | Embeddings / retrieval | 1.21 GiB | sentence-transformers/transformers on AI box; GGUF embedding runtime for GGUF quants. | Copy small baseline first; benchmark retrieval quality before choosing the default embedding model. |

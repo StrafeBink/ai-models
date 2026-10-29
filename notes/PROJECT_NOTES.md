@@ -402,6 +402,8 @@ Downloaded and verified 15 models (112.17 GiB), 0 failures, staging empty, post-
 
 Not downloaded: `pyannote/speaker-diarization-community-1` returns 403 until David accepts its terms on Hugging Face.
 
+Update: David approved access; downloaded to `Speech-STT/speaker-diarization-community-1` (11 files, 32 MiB, metadata present). Audit: 75 folders, 0 issues.
+
 Tooling:
 
 - `hf_model_manager.py download --folder-name` sets the local folder (recorded as `local_folder_name`), for single-quant downloads from multi-quant GGUF repos.

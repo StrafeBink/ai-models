@@ -76,6 +76,7 @@ This is a decision layer for the model file server. It describes what each verif
 | Speech-STT | `parakeet-tdt-0.6b-v3` | Speech-to-text | `high` | `active` | NeMo (parakeet/nemotron) or transformers (Qwen3-ASR) on AI box. | 5.34 GiB | Move to AI box for transcription/STT testing. |
 | Speech-STT | `Qwen3-ASR-1.7B` | Speech-to-text | `medium` | `active` | NeMo (parakeet/nemotron) or transformers (Qwen3-ASR) on AI box. | 4.38 GiB | Move to AI box for transcription/STT testing. |
 | Speech-STT | `silero-vad` | Speaker diarisation / voice activity | `medium` | `active` | NeMo / ONNX runtime on AI box (very small; CPU is fine). | 0.01 GiB | Move to AI box alongside an STT model to split speakers and detect speech. |
+| Speech-STT | `speaker-diarization-community-1` | Speaker diarisation / voice activity | `medium` | `active` | NeMo / ONNX runtime on AI box (very small; CPU is fine). | 0.03 GiB | Move to AI box alongside an STT model to split speakers and detect speech. |
 | Speech-STT | `whisper-large-v2` | Speech-to-text | `medium` | `review_after_benchmark` | faster-whisper preferred; transformers fallback on AI box. | 23.00 GiB | Move to AI box for transcription/STT testing. |
 | Speech-STT | `whisper-large-v3` | Speech-to-text | `medium` | `active` | faster-whisper preferred; transformers fallback on AI box. | 23.01 GiB | Move to AI box for transcription/STT testing. |
 | Speech-STT | `whisper-large-v3-turbo` | Speech-to-text | `high` | `active` | faster-whisper preferred; transformers fallback on AI box. | 1.51 GiB | Move to AI box for transcription/STT testing. |
@@ -867,6 +868,19 @@ This is a decision layer for the model file server. It describes what each verif
 - Keep status: `active`
 - AI-box runtime: NeMo / ONNX runtime on AI box (very small; CPU is fine).
 - Size: `0.01 GiB`; payload files: `12`
+- Recommended use: Move to AI box alongside an STT model to split speakers and detect speech.
+- Notes: Small helper models for transcription pipelines.
+
+### `speaker-diarization-community-1`
+
+- Repo: `pyannote/speaker-diarization-community-1`
+- Location: `Speech-STT`
+- Capability: Speaker diarisation / voice activity
+- Library status: `verified_file_server_copy`
+- Transfer priority: `medium`
+- Keep status: `active`
+- AI-box runtime: NeMo / ONNX runtime on AI box (very small; CPU is fine).
+- Size: `0.03 GiB`; payload files: `11`
 - Recommended use: Move to AI box alongside an STT model to split speakers and detect speech.
 - Notes: Small helper models for transcription pipelines.
 

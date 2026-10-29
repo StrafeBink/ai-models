@@ -1,7 +1,7 @@
 # Model Storage Dashboard
 
-- Total downloaded model folders: `71`
-- Total measured size: `3709.25 GiB` (`3.62 TiB`)
+- Total downloaded model folders: `72`
+- Total measured size: `3709.28 GiB` (`3.62 TiB`)
 - Role: file-server storage for models that are manually copied to the AI box as needed.
 
 ## Size by transfer priority
@@ -9,7 +9,7 @@
 | Transfer priority | Size | Share |
 |---|---:|---:|
 | `high` | 394.30 GiB | 10.6% |
-| `medium` | 741.00 GiB | 20.0% |
+| `medium` | 741.03 GiB | 20.0% |
 | `review` | 0.00 GiB | 0.0% |
 | `archive_only` | 2573.95 GiB | 69.4% |
 
@@ -23,7 +23,7 @@
 | Archive-Huge/Multimodal | 120.50 GiB | 3.2% |
 | Coding | 88.86 GiB | 2.4% |
 | Archive-Huge/Coding | 86.22 GiB | 2.3% |
-| Speech-STT | 63.18 GiB | 1.7% |
+| Speech-STT | 63.22 GiB | 1.7% |
 | Audio | 43.54 GiB | 1.2% |
 | Embeddings | 40.77 GiB | 1.1% |
 | Speech-TTS | 31.35 GiB | 0.8% |
@@ -49,7 +49,7 @@
 | OCR / document extraction | 6.32 GiB | 0.2% |
 | Reranking / retrieval | 3.98 GiB | 0.1% |
 | Prompt safety / moderation | 1.05 GiB | 0.0% |
-| Speaker diarisation / voice activity | 0.67 GiB | 0.0% |
+| Speaker diarisation / voice activity | 0.70 GiB | 0.0% |
 
 ## Top 15 largest folders
 
