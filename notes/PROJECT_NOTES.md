@@ -404,6 +404,14 @@ Not downloaded: `pyannote/speaker-diarization-community-1` returns 403 until Dav
 
 Update: David approved access; downloaded to `Speech-STT/speaker-diarization-community-1` (11 files, 32 MiB, metadata present). Audit: 75 folders, 0 issues.
 
+## 2026-10-29 — Decisions: auto-remount, archive batch, cleanup review
+
+- Auto-remount: `~/.hermes/scripts/mount-model-share.sh` + LaunchAgent `~/Library/LaunchAgents/ai.hermes.models-mount.plist` (RunAtLoad, every 300 s). Only mounts when the share is missing and the file server answers on port 445; never unmounts; refuses to mount over a non-empty folder. Log: `~/.hermes/logs/model-share-mount.log`. Tested: unmount → script → remounted. The Hermes gateway blocks `launchctl bootstrap`, so the agent starts at next login (or load manually from Terminal).
+- Archive batch started with `scripts/download_archive_per_file.py` (per-file local staging, curl handles the 94.6 GiB single file): `Archive-Huge/LLM/DeepSeek-V4-Flash-0731` (155 GiB), `Archive-Huge/Multimodal/GLM-5.3-Flash` (306 GiB), `Archive-Huge/Multimodal/DeepSeek-V4.1-Flash` (475 GiB). ~936 GiB total; leaves ~2.4 TiB free.
+- Cleanup review prepared (no deletions without explicit approval).
+- Removed the old broken venv backup. Homebrew Python removal was deliberate; the project venv is on the uv-managed CPython 3.14.7.
+- Skipped: own OpenRouter account usage tracking; HF token rotation (David's call).
+
 Tooling:
 
 - `hf_model_manager.py download --folder-name` sets the local folder (recorded as `local_folder_name`), for single-quant downloads from multi-quant GGUF repos.
