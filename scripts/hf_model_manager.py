@@ -590,31 +590,40 @@ def copy_tree_contents(src: Path, dst: Path) -> None:
             shutil.copy2(item, target)
 
 
-def payload_files(root: Path, *, exclude_cache: bool = True) -> set[str]:
-    files: set[str] = set()
+METADATA_NAME = "_hermes_model_metadata.json"
+
+
+def payload_files(root: Path, *, exclude_cache: bool = True) -> dict[str, int]:
+    """Relative path -> size for payload files (excludes .cache and the Hermes metadata marker)."""
+    files: dict[str, int] = {}
     for path in root.rglob("*"):
         if not path.is_file():
             continue
         rel = path.relative_to(root)
         if exclude_cache and ".cache" in rel.parts:
             continue
-        files.add(str(rel))
+        if str(rel) == METADATA_NAME:
+            continue
+        files[str(rel)] = path.stat().st_size
     return files
 
 
 def verify_payload_copy(src: Path, dst: Path, *, exclude_cache: bool = True) -> None:
     src_files = payload_files(src, exclude_cache=exclude_cache)
     dst_files = payload_files(dst, exclude_cache=exclude_cache)
-    missing = sorted(src_files - dst_files)
-    extra = sorted(dst_files - src_files)
+    missing = sorted(set(src_files) - set(dst_files))
+    extra = sorted(set(dst_files) - set(src_files))
+    size_mismatch = sorted(f for f in set(src_files) & set(dst_files) if src_files[f] != dst_files[f])
     print(f"Source payload files: {len(src_files)}")
     print(f"Destination payload files: {len(dst_files)}")
-    if missing or extra:
+    if missing or extra or size_mismatch:
         preview = {
             "missing_in_destination": missing[:20],
             "extra_in_destination": extra[:20],
+            "size_mismatch": size_mismatch[:20],
             "missing_count": len(missing),
             "extra_count": len(extra),
+            "size_mismatch_count": len(size_mismatch),
         }
         raise SystemExit("Payload verification failed:\n" + json.dumps(preview, indent=2))
     print("Payload verification: OK")
@@ -635,6 +644,8 @@ def rsync_inplace_copy(src: Path, dst: Path, *, exclude_cache: bool = True) -> N
     cmd = ["rsync", "-rt", "--inplace", "--progress"]
     if exclude_cache:
         cmd += ["--exclude", ".cache/"]
+    # Never copy a metadata marker from staging: it is written to the target only after verification.
+    cmd += ["--exclude", "/" + METADATA_NAME]
     cmd += [str(src) + "/", str(dst) + "/"]
     print("Rsync staged payload to final target:")
     print("CMD: " + " ".join(cmd))
@@ -752,13 +763,21 @@ def cmd_download(args: argparse.Namespace) -> None:
     }
     if args.folder_name:
         metadata["local_folder_name"] = args.folder_name
-    (download_dir / "_hermes_model_metadata.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
+    metadata_text = json.dumps(metadata, indent=2)
     if use_staging:
+        # Copy + verify first; the metadata marker is written to the target last, so an
+        # interrupted copy never looks complete to --resume or the audit.
+        stale = download_dir / METADATA_NAME
+        if stale.exists():
+            stale.unlink()
         print(f"Copying staged download to final target: {target}")
         copy_staged_to_target(download_dir, target, args)
+        (target / METADATA_NAME).write_text(metadata_text, encoding="utf-8")
         if not args.keep_staging:
             print(f"Removing staging dir: {download_dir}")
             shutil.rmtree(download_dir)
+    else:
+        (download_dir / METADATA_NAME).write_text(metadata_text, encoding="utf-8")
     print(f"Download complete: {target}")
 
 
