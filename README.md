@@ -80,9 +80,12 @@ Safety-Moderation/
 Speech-STT/
 Speech-TTS/
 Time-Series/
+Uncensored/        # <family>/<model>: LLM, Coding, Multimodal, Diffusion-Image, Video, Audio, Speech-TTS, Other
 Video/
 Vision-OCR/
 ```
+
+`Uncensored/` holds uncensored, abliterated and unfiltered variants, kept apart from mainstream models. Repos whose id or tags match `uncensored_markers` in `config/model_taxonomy.yaml` are routed there automatically; NSFW *classifiers* stay in `Safety-Moderation/`. Download one explicitly with `--category Uncensored/LLM` (or another family). Research: `python scripts/hf_model_manager.py research --category Uncensored --limit 30 --label uncensored` (searches by trending, likes, downloads and recency).
 
 `RAG/` is reserved for workflow material:
 

@@ -84,6 +84,16 @@ categories:
     search_terms: [time series, forecasting, anomaly detection]
     hf_tasks: [time-series-forecasting]
     auto_download_default: false
+  Uncensored:
+    description: >-
+      Uncensored, abliterated, and unfiltered variants (refusal/alignment tuning removed or reduced),
+      kept apart from mainstream models. Models live in Uncensored/<family>/<model>.
+    search_terms: [uncensored, abliterated, heretic, unfiltered, decensored, nsfw]
+    search_sorts: [trending_score, likes, downloads, createdAt]
+    max_search_terms: 6
+    hf_tasks: []
+    subfolders: [LLM, Coding, Multimodal, Diffusion-Image, Video, Audio, Speech-TTS, Other]
+    auto_download_default: false
   Video:
     description: Video generation, video editing, image-to-video, and video understanding models.
     search_terms: [video generation, image to video, text to video, video understanding]
@@ -114,6 +124,10 @@ archive_subfolders:
   - Datasets-Model-Assets
   - Research-Snapshots
   - Unsorted-Pending-Review
+
+# Repo id / tag markers that route a model to Uncensored/<family>.
+# Classifiers (e.g. NSFW detectors) are excluded and stay in Safety-Moderation.
+uncensored_markers: [uncensored, abliterated, abliteration, heretic, unfiltered, decensored, unaligned, nsfw, not-for-all-audiences, refusal-removed]
 
 trusted_orgs:
   - Qwen

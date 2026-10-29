@@ -404,6 +404,15 @@ Not downloaded: `pyannote/speaker-diarization-community-1` returns 403 until Dav
 
 Update: David approved access; downloaded to `Speech-STT/speaker-diarization-community-1` (11 files, 32 MiB, metadata present). Audit: 75 folders, 0 issues.
 
+Tooling:
+
+- `hf_model_manager.py download --folder-name` sets the local folder (recorded as `local_folder_name`), for single-quant downloads from multi-quant GGUF repos.
+- Size estimate now honours `--allow-pattern`/`--ignore-pattern`, so filtered GGUF downloads still use local staging.
+- Batch script: `scripts/batches/2026-10-voice-and-gaps.sh`. Transfer manifest for the voice pack (41.74 GiB) generated under `transfer-manifests/`.
+- Capability/transfer docs now recognise Speech-TTS, Rerankers, diarisation/VAD, non-Whisper STT and Qwen-Image.
+- Share free space after batch: 3.4 TiB (97% used).
+
+
 ## 2026-10-29 — Decisions: auto-remount, archive batch, cleanup review
 
 - Auto-remount: `~/.hermes/scripts/mount-model-share.sh` + LaunchAgent `~/Library/LaunchAgents/ai.hermes.models-mount.plist` (RunAtLoad, every 300 s). Only mounts when the share is missing and the file server answers on port 445; never unmounts; refuses to mount over a non-empty folder. Log: `~/.hermes/logs/model-share-mount.log`. Tested: unmount → script → remounted. The Hermes gateway blocks `launchctl bootstrap`, so the agent starts at next login (or load manually from Terminal).
@@ -412,13 +421,13 @@ Update: David approved access; downloaded to `Speech-STT/speaker-diarization-com
 - Removed the old broken venv backup. Homebrew Python removal was deliberate; the project venv is on the uv-managed CPython 3.14.7.
 - Skipped: own OpenRouter account usage tracking; HF token rotation (David's call).
 
-Tooling:
+## 2026-10-29 — Frontier swap, new picks, Uncensored category
 
-- `hf_model_manager.py download --folder-name` sets the local folder (recorded as `local_folder_name`), for single-quant downloads from multi-quant GGUF repos.
-- Size estimate now honours `--allow-pattern`/`--ignore-pattern`, so filtered GGUF downloads still use local staging.
-- Batch script: `scripts/batches/2026-10-voice-and-gaps.sh`. Transfer manifest for the voice pack (41.74 GiB) generated under `transfer-manifests/`.
-- Capability/transfer docs now recognise Speech-TTS, Rerankers, diarisation/VAD, non-Whisper STT and Qwen-Image.
-- Share free space after batch: 3.4 TiB (97% used).
+- Replaced the queued September `DeepSeek-V4.1-Flash` with `DeepSeek-V4.1-Flash-1017` (#1 on OpenRouter). Removed the empty Sept folder. New batch `scripts/batches/2026-10-archives-v2.sh` (supersedes `2026-10-archives.sh`): Unlimited-OCR-2, clef-flash, Qwen-Image-2.1-Turbo, then archives DeepSeek-V4-Flash-0731 (resume), Qwen3.8-Flash-Next-FP4-Local, MiniMax-M3.1-Flash, GLM-5.3-Flash, DeepSeek-V4.1-Flash-1017 (~1.3 TiB total).
+- New top-level `Uncensored/` category with family subfolders `LLM, Coding, Multimodal, Diffusion-Image, Video, Audio, Speech-TTS, Other`; models live in `Uncensored/<family>/<model>` and metadata category is `Uncensored/<family>`.
+- `uncensored_markers` in `config/model_taxonomy.yaml` (uncensored, abliterated, heretic, unfiltered, decensored, nsfw, not-for-all-audiences, ...) route matching repos to `Uncensored/<family>` in research and download. Classifier tasks (NSFW detectors) stay in Safety-Moderation.
+- Research supports per-category `search_sorts` and `max_search_terms`; Uncensored searches 6 terms by trending, likes, downloads and recency. Included in the weekly digest and daily radar crons (both cron prompts now use the mount script instead of an inline SMB string).
+- `audit_model_library.py` and presence checks understand the `Uncensored/<family>/` layout.
 
 ## 2026-10-16 — Massive scan + voice review
 

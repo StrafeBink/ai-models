@@ -169,6 +169,9 @@ def local_presence(model_root: Path, repo_id: str) -> tuple[bool, str | None]:
     for child in (model_root / "Archive-Huge").glob(f"*/{name}") if (model_root / "Archive-Huge").exists() else []:
         if child.is_dir():
             return True, str(child)
+    for child in (model_root / "Uncensored").glob(f"*/{name}") if (model_root / "Uncensored").exists() else []:
+        if child.is_dir():
+            return True, str(child)
     return False, None
 
 
@@ -192,13 +195,39 @@ def category_for_model(cfg: dict[str, Any], repo_id: str, tags: list[str], pipel
     ]
     for category, needles in rules:
         if any(n in text for n in needles) and category in cfg["categories"]:
-            return category
-    return "LLM" if (pipeline_tag == "text-generation" or "text-generation" in tags) else "Unsorted-Pending-Review"
+            return uncensored_route(cfg, text, pipeline_tag, category)
+    family = "LLM" if (pipeline_tag == "text-generation" or "text-generation" in tags) else "Unsorted-Pending-Review"
+    return uncensored_route(cfg, text, pipeline_tag, family)
+
+
+CLASSIFIER_TASKS = {"text-classification", "image-classification", "audio-classification", "zero-shot-image-classification", "object-detection"}
+
+
+def is_uncensored(cfg: dict[str, Any], text: str, pipeline_tag: str | None) -> bool:
+    if pipeline_tag in CLASSIFIER_TASKS:
+        return False  # NSFW/toxicity detectors are moderation tools, not uncensored models
+    return any(m in text for m in cfg.get("uncensored_markers", []))
+
+
+def uncensored_route(cfg: dict[str, Any], text: str, pipeline_tag: str | None, family: str) -> str:
+    """Return 'Uncensored/<family>' for uncensored variants, otherwise the family unchanged."""
+    if "Uncensored" not in cfg["categories"] or not is_uncensored(cfg, text, pipeline_tag):
+        return family
+    subs = cfg["categories"]["Uncensored"].get("subfolders") or []
+    return f"Uncensored/{family if family in subs else 'Other'}"
+
+
+def valid_category(cfg: dict[str, Any], category: str) -> bool:
+    if category in cfg["categories"] or category == "Unsorted-Pending-Review":
+        return True
+    top, _, sub = category.partition("/")
+    return bool(sub) and sub in (cfg["categories"].get(top, {}).get("subfolders") or [])
 
 
 def score_candidate(cfg: dict[str, Any], repo_id: str, category: str, tags: list[str], downloads: int | None, likes: int | None, gated: str, pipeline_tag: str | None, or_usage: dict[str, Any] | None = None, size_gib: float | None = None) -> tuple[int, int, str, str]:
     org = repo_id.split("/", 1)[0]
     trusted = org.lower() in {o.lower() for o in cfg.get("trusted_orgs", [])}
+    family = category.split("/")[-1]  # Uncensored/LLM scores like LLM
     tag_text = " ".join(tags).lower()
     downloads = downloads or 0
     likes = likes or 0
@@ -229,7 +258,7 @@ def score_candidate(cfg: dict[str, Any], repo_id: str, category: str, tags: list
         score += 18
         reasons.append("local/quant tooling signal")
 
-    if category in {"Embeddings", "Rerankers", "Coding", "LLM", "Speech-STT", "Speech-TTS", "Vision-OCR"}:
+    if family in {"Embeddings", "Rerankers", "Coding", "LLM", "Speech-STT", "Speech-TTS", "Vision-OCR"}:
         score += 10
         reasons.append("priority category")
     if gated not in {"False", "false", "None", "none"}:
@@ -239,7 +268,7 @@ def score_candidate(cfg: dict[str, Any], repo_id: str, category: str, tags: list
     archive_score = 0
     if trusted:
         archive_score += 25
-    if category in {"LLM", "Coding", "Multimodal", "Diffusion-Image", "Video"}:
+    if family in {"LLM", "Coding", "Multimodal", "Diffusion-Image", "Video"}:
         archive_score += 15
     if any(x in repo_id.lower() for x in ["kimi", "deepseek", "qwen", "llama", "mistral", "gemma", "gpt-oss"]):
         archive_score += 18
@@ -403,8 +432,10 @@ def research_for_category(api: HfApi, cfg: dict[str, Any], model_root: Path, cat
                 print(f"WARN: task search failed for {category}/{task}/{sort_key}: {e}", file=sys.stderr)
     # Search term models by recency and usage. This catches terms like GGUF,
     # reranker, whisper, FLUX, etc. that may not have reliable pipeline tags.
-    for term in terms[:4]:
-        for sort_key in ["createdAt", "downloads"]:
+    # Categories can override sorts (e.g. Uncensored adds trending_score/likes).
+    sorts = meta.get("search_sorts") or ["createdAt", "downloads"]
+    for term in terms[: meta.get("max_search_terms", 4)]:
+        for sort_key in sorts:
             try:
                 found.extend(api.list_models(search=term, sort=sort_key, limit=limit, full=True))
             except Exception as e:
@@ -625,8 +656,8 @@ def cmd_download(args: argparse.Namespace) -> None:
 
     tags = list(info.tags or [])
     category = args.category or category_for_model(cfg, repo_id, tags, info.pipeline_tag)
-    if category not in cfg["categories"] and category != "Unsorted-Pending-Review":
-        raise SystemExit(f"Unknown category: {category}")
+    if not valid_category(cfg, category):
+        raise SystemExit(f"Unknown category: {category} (Uncensored models use Uncensored/<family>, e.g. Uncensored/LLM)")
 
     gated = str(info.gated)
     if gated not in {"False", "false", "None", "none"} and not args.confirm_gated_access:
