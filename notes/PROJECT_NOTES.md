@@ -439,6 +439,8 @@ Tooling:
   - ~6.4 TiB total; leaves ~3 TiB free of 98 TiB.
 - After the Unraid restart, SMB copy speed fell from ~34 MB/s to ~4 MB/s (server side: David is expanding the Unraid array). At 4 MB/s the queue would take ~3 weeks.
 - Muse-Spark: David applied to Meta. Daily no-agent cron `41494eff77cc` (09:00, posts to the AI Models topic) runs `~/.hermes/scripts/muse-spark-access-check.sh`: silent while HTTP 403; on approval notes it once; if no queue is running it starts/resumes `download_archive_per_file.py` detached; posts once when metadata exists. State in `~/.hermes/state/muse-spark-check/`. Remove the job after completion.
+- Added to queue v3 after the uncensored starter set (~81 GiB): Noct-Q-Uncensored-Qwen-Image-2.1 V4 (int8, 6.8 GiB), qwen-image-edit-plus-nsfw-lora (0.55 GiB; LoRA for Qwen-Image-Edit-2511, base not held), LTX-2.3-uncensored v1.4 fp8mixed + text encoder/projections/VAEs/upscaler (38.7 GiB), LTX-2.5-uncensored v1.1 fp8_scaled + int8 Gemma4 text encoder/VAEs/upscalers (35.1 GiB). LTX repos list no licence (base: Lightricks LTX licence).
+- Meta approved Muse-Spark access (HTTP 200 confirmed 2026-10-29); it stays last in queue v3. Cron state files pre-set so the daily check does not repeat the approval message.
 - Hand-over bug: batch logs contain `\r` progress bars, so `grep '^===== <repo>'` never matches; match without `^` (or `tr '\r' '\n'` first).
 - Fixes: research presence checks now list the library once per run (was thousands of SMB lookups per scan); Coding rule no longer matches "text-encoder".
 

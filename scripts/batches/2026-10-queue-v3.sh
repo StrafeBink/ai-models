@@ -49,6 +49,24 @@ small abenzerps/Qwen-Image-2.1-Uncensored-Quantized --category Uncensored/Diffus
   --allow-pattern 'qwen-image-2.1-UC-Q8_0.gguf' --allow-pattern 'text_encoders/qwen3vl_8b_int8_convrot.safetensors' \
   --allow-pattern 'vae/*' --allow-pattern '*.md' --allow-pattern '*.json'
 
+# --- Uncensored image/video additions (approved 2026-10-29). One variant each.
+small Noctaluna/Noct-Q-Uncensored-Qwen-Image-2.1 --category Uncensored/Diffusion-Image \
+  --folder-name Noct-Q-Uncensored-Qwen-Image-2.1-V4 \
+  --allow-pattern 'NoctQ_V4*' --allow-pattern 'LICENSE' --allow-pattern 'NOTICE' --allow-pattern '*.md' --allow-pattern 'images/*'
+small ScottzillaSystems/qwen-image-edit-plus-nsfw-lora --category Uncensored/Diffusion-Image
+small ChrisColeTech/LTX-2.3-uncensored-v1.4-FP8 --category Uncensored/Video \
+  --folder-name LTX-2.3-uncensored-v1.4-fp8mixed \
+  --allow-pattern 'split/diffusion_models/ltxv23_uncensored_v1.4_fp8mixed.safetensors' \
+  --allow-pattern 'split/text_encoders/*' --allow-pattern 'split/vae/*' \
+  --allow-pattern 'split/latent_upscale_models/ltx-2.3-spatial-upscaler-x2-1.1.safetensors' \
+  --allow-pattern 'workflow_examples/*' --allow-pattern '*.md'
+small ChrisColeTech/LTX-2.5-uncensored-v1.1-FP8 --category Uncensored/Video \
+  --folder-name LTX-2.5-uncensored-v1.1-fp8_scaled \
+  --allow-pattern 'split/diffusion_models/ltx25_uncensored_v1.1-fp8_scaled.safetensors' \
+  --allow-pattern 'split/text_encoders/gemma4_12b_ltx25_uncensored-int8.safetensors' \
+  --allow-pattern 'split/vae/*' --allow-pattern 'split/latent_upscale_models/*' \
+  --allow-pattern 'workflow_examples/*' --allow-pattern '*.md'
+
 # --- Archives, smallest first (DeepSeek-V4-Flash resumes at file 26/74)
 archive deepseek-ai/DeepSeek-V4-Flash-0731 LLM
 archive nvidia/Qwen3.8-Flash-Next-FP4-Local Multimodal
