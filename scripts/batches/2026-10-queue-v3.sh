@@ -49,6 +49,19 @@ small abenzerps/Qwen-Image-2.1-Uncensored-Quantized --category Uncensored/Diffus
   --allow-pattern 'qwen-image-2.1-UC-Q8_0.gguf' --allow-pattern 'text_encoders/qwen3vl_8b_int8_convrot.safetensors' \
   --allow-pattern 'vae/*' --allow-pattern '*.md' --allow-pattern '*.json'
 
+# --- Qwen-Image-Edit-2511 (base for the edit LoRA below): full model + homelab-sized variants
+small Qwen/Qwen-Image-Edit-2511 --category Diffusion-Image
+small unsloth/Qwen-Image-Edit-2511-GGUF --category Diffusion-Image \
+  --folder-name Qwen-Image-Edit-2511-GGUF-Q8_0 \
+  --allow-pattern 'qwen-image-edit-2511-Q8_0.gguf' --allow-pattern '*.md' --allow-pattern '*.json'
+small unsloth/Qwen-Image-Edit-2511-GGUF --category Diffusion-Image \
+  --folder-name Qwen-Image-Edit-2511-GGUF-Q4_K_M \
+  --allow-pattern 'qwen-image-edit-2511-Q4_K_M.gguf' --allow-pattern '*.md' --allow-pattern '*.json'
+small lightx2v/Qwen-Image-Edit-2511-Lightning --category Diffusion-Image \
+  --folder-name Qwen-Image-Edit-2511-Lightning-LoRAs \
+  --allow-pattern 'Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors' \
+  --allow-pattern 'Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors' --allow-pattern '*.md'
+
 # --- Uncensored image/video additions (approved 2026-10-29). One variant each.
 small Noctaluna/Noct-Q-Uncensored-Qwen-Image-2.1 --category Uncensored/Diffusion-Image \
   --folder-name Noct-Q-Uncensored-Qwen-Image-2.1-V4 \
