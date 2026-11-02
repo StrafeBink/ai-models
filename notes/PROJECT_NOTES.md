@@ -442,6 +442,7 @@ Tooling:
 - Added to queue v3 after the uncensored starter set (~81 GiB): Noct-Q-Uncensored-Qwen-Image-2.1 V4 (int8, 6.8 GiB), qwen-image-edit-plus-nsfw-lora (0.55 GiB; LoRA for Qwen-Image-Edit-2511, base not held), LTX-2.3-uncensored v1.4 fp8mixed + text encoder/projections/VAEs/upscaler (38.7 GiB), LTX-2.5-uncensored v1.1 fp8_scaled + int8 Gemma4 text encoder/VAEs/upscalers (35.1 GiB). LTX repos list no licence (base: Lightricks LTX licence).
 - Added Qwen-Image-Edit-2511 (base for the edit LoRA) before the uncensored image/video additions (~88 GiB): full `Qwen/Qwen-Image-Edit-2511` (53.8 GiB, diffusers: transformer + Qwen2.5-VL text encoder + VAE), unsloth GGUF Q8_0 (20.3 GiB, B70) and Q4_K_M (12.3 GiB, B70 / A380 with offload) as separate folders, and lightx2v Lightning 4-step + 8-step bf16 LoRAs (1.6 GiB). GGUF folders hold only the transformer; reuse the text encoder/VAE from the full model.
 - Meta approved Muse-Spark access (HTTP 200 confirmed 2026-10-29); it stays last in queue v3. Cron state files pre-set so the daily check does not repeat the approval message.
+- Cleanup review decision (2026-10-29): David chose to keep all older/superseded models; no deletions. Do not re-raise unless space becomes critical.
 - Hand-over bug: batch logs contain `\r` progress bars, so `grep '^===== <repo>'` never matches; match without `^` (or `tr '\r' '\n'` first).
 - Fixes: research presence checks now list the library once per run (was thousands of SMB lookups per scan); Coding rule no longer matches "text-encoder".
 
