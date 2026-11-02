@@ -33,6 +33,9 @@ import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import vpn_only  # noqa: E402  scripts/vpn_only.py: VPN-only model downloads (Civitai also needs a non-AU exit)
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 MODEL_ROOT = Path("/Users/davideddy/mnt/models")
 STAGING = REPO_ROOT / "download-staging" / "civitai"
@@ -223,7 +226,7 @@ def cmd_download(args: argparse.Namespace) -> None:
         dest = stage / f["name"]
         want = (f.get("hashes") or {}).get("SHA256", "").upper()
         if not (dest.exists() and want and sha256(dest) == want):
-            curl_download(f["downloadUrl"], dest)
+            vpn_only.run(lambda: curl_download(f["downloadUrl"], dest), what=f["name"])
         got = sha256(dest)
         if want and got != want:
             dest.unlink(missing_ok=True)
@@ -290,6 +293,9 @@ def main() -> None:
     args = p.parse_args()
     if args.cmd == "research" and not args.type:
         args.type = ["Checkpoint", "LORA"]
+    # Civitai is region-blocked in Australia: all API calls and downloads go VPN-only
+    # (pauses if the VPN drops; never falls back to the home connection).
+    vpn_only.enable()
     args.func(args)
 
 
