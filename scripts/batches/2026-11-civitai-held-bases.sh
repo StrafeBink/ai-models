@@ -26,7 +26,7 @@ dl 2497207 "${LTX[@]}"            # Video reasoning LoRA (VBVR)
 dl 1343431 "${LTX[@]}"            # Bouncing physics LoRA
 dl 2447875 "${LTX[@]}"            # LTX 10Eros checkpoint (27 GiB)
 # Qwen-Image 2.1
-dl 958009  Uncensored/Diffusion-Image "${QWEN[@]}"   # RedCraft checkpoint
+dl 958009 "${QWEN[@]}"   # RedCraft checkpoint
 dl 2958918 "${QWEN[@]}"   # NSFW LoRA | Qwen Image 2.1
 dl 1662740 "${QWEN[@]}"   # Lenovo UltraReal realism LoRA
 dl 2063193 "${QWEN[@]}" "${KLEIN[@]}"   # NSFW UNLOCKED LoRA
