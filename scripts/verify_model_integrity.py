@@ -11,6 +11,7 @@ integrity signals that are cheap and useful on an SMB model share:
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import json
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
@@ -25,8 +26,10 @@ DEFAULT_CONFIG = REPO_ROOT / "config" / "model_taxonomy.yaml"
 DEFAULT_AUDIT = REPO_ROOT / "reports" / "model-library-audit-post-cleanup-20260821-133801Z.json"
 DEFAULT_REPORT_DIR = REPO_ROOT / "reports"
 HERMES_METADATA = "_hermes_model_metadata.json"
+HOW_TO_USE = "_HOW_TO_USE.md"
 IGNORE_SUFFIXES = {".lock", ".metadata"}
-IGNORE_NAMES = {HERMES_METADATA}
+IGNORE_NAMES = {HERMES_METADATA, HOW_TO_USE}
+WINDOWS_RESERVED = {"con", "prn", "aux", "nul", *(f"com{i}" for i in range(1, 10)), *(f"lpt{i}" for i in range(1, 10))}
 DEFAULT_REPOS = [
     "sentence-transformers/all-MiniLM-L6-v2",
     "meta-llama/Prompt-Guard-86M",
@@ -85,16 +88,34 @@ def verify_one(row: dict[str, Any]) -> IntegrityResult:
     if not (path / HERMES_METADATA).exists():
         return IntegrityResult(repo_id, str(path), "missing_metadata", None, 0, [], [], [], notes)
     local = payload_files(path)
+    metadata = json.loads((path / HERMES_METADATA).read_text(encoding="utf-8"))
+    if metadata.get("source") == "civitai":
+        # Civitai downloads were SHA256-verified at download time; check the recorded files and sizes.
+        want = {f["name"]: f.get("size_bytes") for f in metadata.get("files", [])}
+        missing = sorted(n for n in want if n not in local)
+        mismatches = [{"file": n, "local": local[n], "expected": s} for n, s in want.items() if n in local and s and local[n] != s]
+        status = "ok" if not missing and not mismatches else "issues"
+        return IntegrityResult(repo_id, str(path), status, len(want), len(want) - len(missing) - len(mismatches),
+                               missing, mismatches, [], ["civitai: verified against recorded SHA256-checked files"])
     try:
         info = model_info(repo_id, files_metadata=True)
     except Exception as exc:  # noqa: BLE001 - report exact API problem
         return IntegrityResult(repo_id, str(path), f"hf_error:{type(exc).__name__}", None, 0, [], [], [], [str(exc)])
     siblings = getattr(info, "siblings", None) or []
+    allow = metadata.get("allow_patterns") or []
+    ignore = metadata.get("ignore_patterns") or []
     hf_files: dict[str, int] = {}
     unknown_size: list[str] = []
     for s in siblings:
         name = getattr(s, "rfilename", None)
         if not name or name in IGNORE_NAMES:
+            continue
+        # Single-quant / curated downloads: only the files selected at download time are expected.
+        if allow and not any(fnmatch.fnmatch(name, p) for p in allow):
+            continue
+        if any(fnmatch.fnmatch(name, p) for p in ignore):
+            continue
+        if name.rsplit("/", 1)[-1].split(".", 1)[0].lower() in WINDOWS_RESERVED:
             continue
         size = getattr(s, "size", None)
         if size is None:
@@ -117,7 +138,6 @@ def verify_one(row: dict[str, Any]) -> IntegrityResult:
     extra = sorted([name for name in local if name not in hf_files])
     status = "ok" if not missing and not mismatches else "issues"
     # Selected GGUF/curated folders are intentionally partial local selections.
-    metadata = json.loads((path / HERMES_METADATA).read_text(encoding="utf-8"))
     if metadata.get("selected_file") and metadata["selected_file"] in local:
         status = "selected_file_ok" if local[metadata["selected_file"]] > 0 else "selected_file_empty"
         notes.append("curated_selected_file; full HF manifest not expected to match")

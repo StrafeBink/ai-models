@@ -86,6 +86,18 @@ def classify(row: dict[str, Any]) -> ModelCard:
         keep = "strategic_archive"
         notes = "Strategic archive/future-hardware store. Do not transfer routinely unless specifically needed."
 
+    if loc.startswith("Uncensored"):
+        # Kept by David's request: never a cleanup/replacement candidate. See _HOW_TO_USE.md in the folder.
+        family = loc.split("/", 1)[1] if "/" in loc else "Other"
+        capability = f"Uncensored {family}"
+        use = "Copy to AI box when needed; see _HOW_TO_USE.md in the folder for the base model and files to load."
+        runtime = "GGUF: llama.cpp / LM Studio / Ollama. Image/video: ComfyUI with the base model named in _HOW_TO_USE.md."
+        priority = "on_request"
+        keep = "protected"
+        notes = "Protected: kept by request; never propose deletion or replacement."
+        return ModelCard(loc, folder, repo, size, int(row.get("payload_file_count") or 0), scope,
+                         capability, use, runtime, priority, library_status, keep, notes)
+
     if loc.endswith("Speech-TTS"):
         capability = "Text-to-speech / voice"
         use = "Move to AI box for speech synthesis, narration, and voice cloning."

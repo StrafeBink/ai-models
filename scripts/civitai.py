@@ -266,6 +266,11 @@ def cmd_download(args: argparse.Namespace) -> None:
     (target / METADATA).write_text(json.dumps(meta, indent=2))
     shutil.rmtree(stage)
     print(f"Download complete: {target}")
+    try:
+        import write_how_to_use
+        write_how_to_use.write_one(target)
+    except Exception as exc:  # noqa: BLE001 - readme is best-effort
+        print(f"Note: could not write _HOW_TO_USE.md ({exc}); run scripts/write_how_to_use.py")
 
 
 def main() -> None:

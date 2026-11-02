@@ -612,7 +612,7 @@ def payload_files(root: Path, *, exclude_cache: bool = True) -> dict[str, int]:
         rel = path.relative_to(root)
         if exclude_cache and ".cache" in rel.parts:
             continue
-        if str(rel) == METADATA_NAME or is_windows_reserved(path.name):
+        if str(rel) == METADATA_NAME or str(rel) == "_HOW_TO_USE.md" or is_windows_reserved(path.name):
             continue
         files[str(rel)] = path.stat().st_size
     return files
@@ -793,6 +793,11 @@ def cmd_download(args: argparse.Namespace) -> None:
     else:
         (download_dir / METADATA_NAME).write_text(metadata_text, encoding="utf-8")
     print(f"Download complete: {target}")
+    try:
+        import write_how_to_use  # scripts/write_how_to_use.py: readme + protected flag for Uncensored/add-on folders
+        write_how_to_use.write_one(target)
+    except Exception as exc:  # noqa: BLE001 - readme is best-effort
+        print(f"Note: could not write _HOW_TO_USE.md ({exc}); run scripts/write_how_to_use.py")
 
 
 def build_parser() -> argparse.ArgumentParser:

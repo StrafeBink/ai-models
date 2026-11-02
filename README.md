@@ -87,6 +87,10 @@ Vision-OCR/
 
 `Uncensored/` holds uncensored, abliterated and unfiltered variants, kept apart from mainstream models. Repos whose id or tags match `uncensored_markers` in `config/model_taxonomy.yaml` are routed there automatically; NSFW *classifiers* stay in `Safety-Moderation/`. Download one explicitly with `--category Uncensored/LLM` (or another family). Research: `python scripts/hf_model_manager.py research --category Uncensored --limit 30 --label uncensored` (searches by trending, likes, downloads and recency).
 
+Every folder under `Uncensored/` (and add-on folders such as GGUF transformer-only quants and LoRAs) has a `_HOW_TO_USE.md` saying what it is, which base model to load and where that base is in the library, the files to load in ComfyUI or llama.cpp, and trigger words for Civitai models. Downloads write it automatically; refresh all with `python scripts/write_how_to_use.py`.
+
+`Uncensored/` and Civitai models are **protected**: metadata carries `"protected": true`, capability reports show `keep_status: protected`, and the monthly audit alerts if a protected folder that existed before goes missing (`reports/protected-models-latest.json`). No tool deletes models; never propose them for cleanup.
+
 `RAG/` is reserved for workflow material:
 
 ```text
