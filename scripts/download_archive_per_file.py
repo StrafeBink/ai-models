@@ -31,12 +31,19 @@ def safe_folder_name(repo_id: str) -> str:
     return repo_id.split("/", 1)[-1]
 
 
+WINDOWS_RESERVED = {"con", "prn", "aux", "nul", *(f"com{i}" for i in range(1, 10)), *(f"lpt{i}" for i in range(1, 10))}
+
+
 def wanted_files(repo_id: str, ignore_suffixes: tuple[str, ...]) -> dict[str, int]:
     info = model_info(repo_id, files_metadata=True)
     out: dict[str, int] = {}
     for sibling in info.siblings or []:
         rel = sibling.rfilename
         if rel.endswith(ignore_suffixes):
+            continue
+        # Windows-reserved names (e.g. a stray `nul`) cannot be created on the SMB share.
+        if rel.rsplit("/", 1)[-1].split(".", 1)[0].lower() in WINDOWS_RESERVED:
+            print(f"Skipping Windows-reserved filename: {rel}")
             continue
         size = getattr(sibling, "size", None)
         if size is None:

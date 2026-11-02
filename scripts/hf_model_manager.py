@@ -591,10 +591,18 @@ def copy_tree_contents(src: Path, dst: Path) -> None:
 
 
 METADATA_NAME = "_hermes_model_metadata.json"
+# Windows-reserved device names (e.g. a stray empty `nul` file in some repos) cannot be
+# created on the SMB share; skip them in copies and verification.
+WINDOWS_RESERVED = {"con", "prn", "aux", "nul", *(f"com{i}" for i in range(1, 10)), *(f"lpt{i}" for i in range(1, 10))}
+
+
+def is_windows_reserved(name: str) -> bool:
+    return name.split(".", 1)[0].lower() in WINDOWS_RESERVED
 
 
 def payload_files(root: Path, *, exclude_cache: bool = True) -> dict[str, int]:
-    """Relative path -> size for payload files (excludes .cache and the Hermes metadata marker)."""
+    """Relative path -> size for payload files (excludes .cache, the Hermes metadata marker
+    and Windows-reserved names)."""
     files: dict[str, int] = {}
     for path in root.rglob("*"):
         if not path.is_file():
@@ -602,7 +610,7 @@ def payload_files(root: Path, *, exclude_cache: bool = True) -> dict[str, int]:
         rel = path.relative_to(root)
         if exclude_cache and ".cache" in rel.parts:
             continue
-        if str(rel) == METADATA_NAME:
+        if str(rel) == METADATA_NAME or is_windows_reserved(path.name):
             continue
         files[str(rel)] = path.stat().st_size
     return files
@@ -646,6 +654,8 @@ def rsync_inplace_copy(src: Path, dst: Path, *, exclude_cache: bool = True) -> N
         cmd += ["--exclude", ".cache/"]
     # Never copy a metadata marker from staging: it is written to the target only after verification.
     cmd += ["--exclude", "/" + METADATA_NAME]
+    for name in sorted(WINDOWS_RESERVED):
+        cmd += ["--exclude", name, "--exclude", name.upper(), "--exclude", f"{name}.*", "--exclude", f"{name.upper()}.*"]
     cmd += [str(src) + "/", str(dst) + "/"]
     print("Rsync staged payload to final target:")
     print("CMD: " + " ".join(cmd))
