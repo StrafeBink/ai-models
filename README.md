@@ -363,6 +363,25 @@ python scripts/run_hybrid_repair_plan.py
 - Gated models require explicit `--confirm-gated-access`.
 - Huge archives should be approved manually before downloading.
 - The Hugging Face token should not be committed or pasted into project files.
+- Model downloads are VPN-only (see below).
+
+## VPN-only downloads
+
+Real downloads (`hf_model_manager.py download --execute` and `download_archive_per_file.py`, plus the plan runners
+that call them) go through Proton VPN and never over the home connection.
+
+- **Route:** the Mac's VPN relay has a VPN-only port, `127.0.0.1:18887`. Traffic goes from there to gluetun on Phoenix
+  (Unraid) and out through Proton VPN in Los Angeles. The relay is the LaunchAgent `ai.hermes.vpn-failover`, configured
+  in `~/.hermes/vpn-failover.env`. Unlike the relay's normal port, this one never falls back to the direct connection.
+- **If the VPN drops:** the download pauses, checks every 60 s, and resumes from the partial file once the VPN is back.
+  It gives up after 24 h. Errors that happen while the VPN is healthy (gated repo, missing file) fail as before.
+- **Turn it off for one run:** `MODEL_DOWNLOADS_VPN_ONLY=0 python scripts/hf_model_manager.py download ...`
+- **Other settings:** `MODEL_DOWNLOADS_VPN_MAX_WAIT_HOURS` and `MODEL_DOWNLOADS_VPN_RECHECK`. See `scripts/vpn_only.py`.
+- **Speed:** expect roughly 3–7 MB/s over the VPN, against about 7 MB/s or more direct.
+- **Check the relay:** `curl http://127.0.0.1:18888/__status` shows the mode, the VPN IP and the last error.
+
+Tested 2026-11-02: an 86 MB download had its VPN cut partway through. It paused, made no connections outside the relay
+during a 30 s outage, resumed when the VPN came back and completed.
 
 ## Status
 

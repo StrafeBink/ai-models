@@ -22,6 +22,8 @@ from typing import Iterable
 from huggingface_hub import hf_hub_url, model_info
 from huggingface_hub.utils import build_hf_headers
 
+import vpn_only  # scripts/vpn_only.py: VPN-only model downloads
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 MODEL_ROOT = Path("/Users/davideddy/mnt/models")
 DEFAULT_STAGING = REPO_ROOT / "download-staging" / "archive-per-file"
@@ -155,6 +157,7 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
+    vpn_only.enable()   # downloads go VPN-only (MODEL_DOWNLOADS_VPN_ONLY=0 to disable)
     target = args.target or MODEL_ROOT / "Archive-Huge" / args.category / safe_folder_name(args.repo_id)
     target.mkdir(parents=True, exist_ok=True)
     staging = args.staging_root / safe_folder_name(args.repo_id)
@@ -193,7 +196,7 @@ def main() -> None:
         if local.exists() and local.stat().st_size == expected_size:
             print("Local staged file already complete")
         else:
-            download_with_curl(args.repo_id, revision, rel, local, token)
+            vpn_only.run(lambda: download_with_curl(args.repo_id, revision, rel, local, token), what=rel)
         actual = local.stat().st_size
         if actual != expected_size:
             raise SystemExit(f"Local size mismatch for {rel}: got {actual}, expected {expected_size}")

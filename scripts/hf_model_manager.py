@@ -30,6 +30,8 @@ import yaml
 from huggingface_hub import HfApi, model_info, snapshot_download, whoami
 from huggingface_hub.errors import GatedRepoError, HfHubHTTPError, RepositoryNotFoundError
 
+import vpn_only  # scripts/vpn_only.py: VPN-only model downloads
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CONFIG = REPO_ROOT / "config" / "model_taxonomy.yaml"
 DEFAULT_REPORT_DIR = REPO_ROOT / "reports"
@@ -679,6 +681,8 @@ def copy_staged_to_target(src: Path, dst: Path, args: argparse.Namespace) -> Non
 
 
 def cmd_download(args: argparse.Namespace) -> None:
+    if args.execute:
+        vpn_only.enable()   # real downloads go VPN-only (MODEL_DOWNLOADS_VPN_ONLY=0 to disable)
     cfg = load_config(args.config)
     root = Path(cfg["model_root"])
     ensure_mount(root)
@@ -743,13 +747,13 @@ def cmd_download(args: argparse.Namespace) -> None:
     os.environ.setdefault("HF_HUB_ENABLE_HF_TRANSFER", "1")
     download_dir.mkdir(parents=True, exist_ok=True)
     try:
-        snapshot_download(
+        vpn_only.run(lambda: snapshot_download(
             repo_id=repo_id,
             local_dir=download_dir,
             allow_patterns=args.allow_pattern,
             ignore_patterns=args.ignore_pattern,
             max_workers=args.max_workers,
-        )
+        ), what=repo_id)
     except GatedRepoError as e:
         raise SystemExit(f"Gated repository access failed. Approve on HF first: https://huggingface.co/{repo_id}\n{e}")
 
