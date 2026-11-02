@@ -80,6 +80,13 @@ def iter_model_dirs(root: Path, categories: set[str], archive_families: set[str]
         elif category == "Uncensored":
             # Uncensored/<family>/<model>; the family folder is part of the category.
             for family_dir in sorted([p for p in cat_dir.iterdir() if p.is_dir()], key=lambda p: p.name.lower()):
+                if family_dir.name == "Civitai":
+                    # Uncensored/Civitai/<base>/<type>/<model>
+                    for base_dir in sorted([p for p in family_dir.iterdir() if p.is_dir()], key=lambda p: p.name.lower()):
+                        for type_dir in sorted([p for p in base_dir.iterdir() if p.is_dir()], key=lambda p: p.name.lower()):
+                            for model_dir in sorted([p for p in type_dir.iterdir() if p.is_dir()], key=lambda p: p.name.lower()):
+                                found.append((model_dir, "active", f"Uncensored/Civitai/{base_dir.name}/{type_dir.name}", None))
+                    continue
                 for model_dir in sorted([p for p in family_dir.iterdir() if p.is_dir()], key=lambda p: p.name.lower()):
                     found.append((model_dir, "active", f"Uncensored/{family_dir.name}", None))
         else:

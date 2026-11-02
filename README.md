@@ -81,6 +81,7 @@ Speech-STT/
 Speech-TTS/
 Time-Series/
 Uncensored/        # <family>/<model>: LLM, Coding, Multimodal, Diffusion-Image, Video, Audio, Speech-TTS, Other
+                   # Civitai/<base>/<type>/<model>, e.g. Civitai/LTX-2.3/LoRAs/, Civitai/Qwen-Image-2.1/Checkpoints/
 Video/
 Vision-OCR/
 ```

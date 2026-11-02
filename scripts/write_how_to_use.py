@@ -223,6 +223,7 @@ def write_one(folder: Path) -> bool:
 
 def folders() -> list[Path]:
     out = sorted(p.parent for p in (ROOT / "Uncensored").glob("*/*/" + META))
+    out += sorted(p.parent for p in (ROOT / "Uncensored" / "Civitai").glob("*/*/*/" + META))
     out += [ROOT / rel for rel in CURATED if not rel.startswith("Uncensored/") and (ROOT / rel / META).exists()]
     return out
 

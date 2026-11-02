@@ -92,7 +92,7 @@ categories:
     search_sorts: [trending_score, likes, downloads, createdAt]
     max_search_terms: 6
     hf_tasks: []
-    subfolders: [LLM, Coding, Multimodal, Diffusion-Image, Video, Audio, Speech-TTS, Other]
+    subfolders: [LLM, Coding, Multimodal, Diffusion-Image, Video, Audio, Speech-TTS, Other, Civitai]
     auto_download_default: false
   Video:
     description: Video generation, video editing, image-to-video, and video understanding models.

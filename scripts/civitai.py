@@ -43,6 +43,22 @@ REPORTS = REPO_ROOT / "reports"
 API = "https://civitai.red/api/v1"
 METADATA = "_hermes_model_metadata.json"
 UNCENSORED_FAMILIES = {"LLM", "Coding", "Multimodal", "Diffusion-Image", "Video", "Audio", "Speech-TTS", "Other"}
+CIVITAI_ROOT = "Uncensored/Civitai"  # Uncensored/Civitai/<base>/<type>/<model>
+BASE_FOLDERS = {
+    "ltxv 2.3": "LTX-2.3", "ltxv 2.5": "LTX-2.5", "ltxv2": "LTX-2", "ltxv": "LTX",
+    "qwen 2.1": "Qwen-Image-2.1", "qwen 2": "Qwen-Image-2", "qwen": "Qwen-Image",
+    "flux.2 klein 9b": "FLUX.2-klein-9B", "flux.2 klein 9b-base": "FLUX.2-klein-9B-base",
+    "krea 2": "Krea-2", "krea 2 turbo": "Krea-2-Turbo", "minimax h3": "MiniMax-H3", "moss image": "MOSS-Image",
+    "illustrious": "Illustrious", "anima": "Anima", "pony": "Pony", "sdxl 1.0": "SDXL",
+    "wan video 2.2 t2v-a14b": "Wan-2.2", "wan video 2.2 i2v-a14b": "Wan-2.2",
+}
+TYPE_FOLDERS = {"LORA": "LoRAs", "LoCon": "LoRAs", "DoRA": "LoRAs", "Checkpoint": "Checkpoints",
+                "TextualInversion": "Embeddings", "VAE": "VAE", "Controlnet": "ControlNet", "Upscaler": "Upscalers"}
+
+
+def civitai_category(base_model: str | None, model_type: str | None) -> str:
+    base = BASE_FOLDERS.get(str(base_model or "").lower()) or slug(str(base_model or "Unknown-Base"))
+    return f"{CIVITAI_ROOT}/{base}/{TYPE_FOLDERS.get(str(model_type), 'Other')}"
 BLOCK_PATTERNS = re.compile(
     r"face ?swap|faceswap|face[- ]?id|reactor|lookalike|look-alike|celebrit|real person|deepfake|instantid|pulid",
     re.I,
@@ -102,10 +118,19 @@ def slug(text: str) -> str:
     return re.sub(r"-{2,}", "-", text)[:80] or "model"
 
 
+def tidy_folder_name(model_name: str, version_name: str) -> str:
+    """Short, readable folder name: '<model>__<version>' without repeated words or base-model noise."""
+    name = slug(re.sub(r"\(.*?\)|\[.*?\]|\|.*$", "", model_name))[:48].strip("-._")
+    ver = slug(version_name)[:32].strip("-._")
+    if ver and ver.lower() not in name.lower():
+        return f"{name}__{ver}"
+    return name or slug(model_name)
+
+
 def library_index() -> dict[str, str]:
     """civitai model id -> local path, from metadata files under Uncensored/ and other categories."""
     out: dict[str, str] = {}
-    for pattern in ("*/*/" + METADATA, "Uncensored/*/*/" + METADATA):
+    for pattern in ("*/*/" + METADATA, "Uncensored/*/*/" + METADATA, CIVITAI_ROOT + "/*/*/*/" + METADATA):
         for meta in MODEL_ROOT.glob(pattern):
             try:
                 md = json.loads(meta.read_text())
@@ -183,9 +208,10 @@ def rsync_inplace(src: Path, dst: Path) -> None:
 
 
 def cmd_download(args: argparse.Namespace) -> None:
-    family = args.category.split("/", 1)[1] if args.category.startswith("Uncensored/") else None
-    if args.category.startswith("Uncensored/") and family not in UNCENSORED_FAMILIES:
-        raise SystemExit(f"Unknown Uncensored family: {family}")
+    if args.category:
+        family = args.category.split("/", 1)[1] if args.category.startswith("Uncensored/") else None
+        if args.category.startswith("Uncensored/") and family not in UNCENSORED_FAMILIES and not args.category.startswith(CIVITAI_ROOT):
+            raise SystemExit(f"Unknown Uncensored family: {family}")
     model = api_get(f"/models/{args.model_id}")
     reason = blocked_reason(model)
     if reason:
@@ -208,7 +234,8 @@ def cmd_download(args: argparse.Namespace) -> None:
     files = version.get("files") or []
     if not args.all_files:
         files = [f for f in files if f.get("primary")] or files[:1]
-    folder = args.folder_name or slug(f"{model['name']}-{version.get('name', '')}")
+    folder = args.folder_name or tidy_folder_name(model["name"], version.get("name", ""))
+    args.category = args.category or civitai_category(version.get("baseModel"), model.get("type"))
     target = MODEL_ROOT / args.category / folder
     total = sum((f.get("sizeKB") or 0) * 1024 for f in files)
     print(f"Model: {model['name']} ({model['type']}, base {version.get('baseModel')})")
@@ -288,7 +315,7 @@ def main() -> None:
     d.add_argument("model_id")
     d.add_argument("--version")
     d.add_argument("--base-model", action="append", help="Pick the newest version for this Civitai baseModel (repeatable)")
-    d.add_argument("--category", required=True, help="e.g. Uncensored/Diffusion-Image")
+    d.add_argument("--category", help="Override destination; default Uncensored/Civitai/<base>/<type>")
     d.add_argument("--folder-name")
     d.add_argument("--all-files", action="store_true")
     d.add_argument("--allow-paid", action="store_true")
