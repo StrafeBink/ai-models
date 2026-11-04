@@ -116,6 +116,12 @@ archive reflection/Beam-1.0-501B-A23B-NVFP4 274 NVIDIA-Only
 archive stepfun-ai/Step-5-Preview-NVFP4 368 NVIDIA-Only
 archive nvidia/DeepSeek-V4.1-Flash-1017-NVFP4 400 NVIDIA-Only
 archive meta-models/Muse-Spark-Open-816B-A42B-NVFP4 497 NVIDIA-Only
+# Added 2026-11-04 at David's request (evaluate removals later): community NVFP4 where no official build exists, plus Kimi-K3
+archive shanjiaz/gpt-oss-120b-nvfp4-modelopt 63 NVIDIA-Only
+archive AMAImedia/MiniMax-M3.1-Flash-NVFP4-GGUF 233 NVIDIA-Only --exclude-prefix GGUF/ --exclude-prefix dspark/ --target "$SHARE/Archive-Huge/NVIDIA-Only/MiniMax-M3.1-Flash-NVFP4"
+archive Oxmiq/Hy4-preview-NVFP4-W4A16 457 NVIDIA-Only
+archive com-kotobalabs/MiMo-V2.6-Pro-MOPD-Uncensored-NVFP4 600 NVIDIA-Only  # gated: needs David's click on HF
+archive nvidia/Kimi-K3-NVFP4 1500 NVIDIA-Only
 
 echo "Finished $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 echo "Failures: ${#FAILED[@]} ${FAILED[*]:-}"
