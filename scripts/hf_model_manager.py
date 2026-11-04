@@ -237,6 +237,8 @@ def uncensored_route(cfg: dict[str, Any], text: str, pipeline_tag: str | None, f
 def valid_category(cfg: dict[str, Any], category: str) -> bool:
     if category in cfg["categories"] or category == "Unsorted-Pending-Review":
         return True
+    if category in (cfg.get("archive_subfolders") or []):  # e.g. NVIDIA-Only (used with --archive)
+        return True
     top, _, sub = category.partition("/")
     return bool(sub) and sub in (cfg["categories"].get(top, {}).get("subfolders") or [])
 

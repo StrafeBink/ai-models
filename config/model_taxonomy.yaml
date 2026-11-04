@@ -124,6 +124,7 @@ archive_subfolders:
   - Datasets-Model-Assets
   - Research-Snapshots
   - Unsorted-Pending-Review
+  - NVIDIA-Only            # NVFP4 / NVIDIA-only builds, kept for a future NVIDIA (Blackwell) card
 
 # Repo id / tag markers that route a model to Uncensored/<family>.
 # Classifiers (e.g. NSFW detectors) are excluded and stay in Safety-Moderation.

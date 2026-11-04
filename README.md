@@ -81,7 +81,8 @@ Speech-STT/
 Speech-TTS/
 Time-Series/
 Uncensored/        # <family>/<model>: LLM, Coding, Multimodal, Diffusion-Image, Video, Audio, Speech-TTS, Other
-                   # Civitai/<base>/<type>/<model>, e.g. Civitai/LTX-2.3/LoRAs/, Civitai/Qwen-Image-2.1/Checkpoints/
+                   # Civitai/<base>/<type>/<model>
+Archive-Huge/NVIDIA-Only/  # NVFP4/FP4 builds for a future NVIDIA RTX 50-series card (not for the Arc AI box), e.g. Civitai/LTX-2.3/LoRAs/, Civitai/Qwen-Image-2.1/Checkpoints/
 Video/
 Vision-OCR/
 ```
