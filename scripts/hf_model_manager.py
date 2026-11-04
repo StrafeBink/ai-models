@@ -346,6 +346,10 @@ def model_to_candidate(cfg: dict[str, Any], model: Any, model_root: Path, or_ind
     present, present_path = local_presence(model_root, repo_id)
     if present:
         reason = f"already present at {present_path}; {reason}"
+        # Never recommend downloading something the library already holds.
+        if rec in {"Download Now", "Archive"}:
+            reason = f"would be {rec}, but {reason}"
+            rec = "In Library"
     return Candidate(
         repo_id=repo_id,
         category=category,
@@ -502,7 +506,7 @@ def write_reports(candidates: list[Candidate], report_dir: Path, label: str, or_
     json_path.write_text(json.dumps([asdict(c) for c in candidates], indent=2), encoding="utf-8")
     lines = [f"# Model Research Report ({label})", "", f"Generated: {stamp}", ""]
     lines += openrouter_report_lines(or_index or {})
-    for outcome in ["Download Now", "Archive", "Watch", "Ignore"]:
+    for outcome in ["Download Now", "Archive", "Watch", "In Library", "Ignore"]:
         group = [c for c in candidates if c.recommendation == outcome]
         lines += [f"## {outcome} ({len(group)})", ""]
         for c in group[:50]:
@@ -559,7 +563,7 @@ def cmd_research(args: argparse.Namespace) -> None:
     print(f"Wrote {json_path}")
     print(f"Wrote {md_path}")
     print(f"Candidates: {len(candidates)}")
-    for outcome in ["Download Now", "Archive", "Watch", "Ignore"]:
+    for outcome in ["Download Now", "Archive", "Watch", "In Library", "Ignore"]:
         print(f"  {outcome}: {sum(1 for c in candidates if c.recommendation == outcome)}")
 
 
@@ -820,7 +824,7 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--limit", type=int, default=8, help="Results per search/task query")
     s.add_argument("--label", default="manual")
     s.add_argument("--report-dir", type=Path, default=DEFAULT_REPORT_DIR)
-    s.add_argument("--outcome", action="append", choices=["Download Now", "Archive", "Watch", "Ignore"], help="Filter report to one or more outcomes")
+    s.add_argument("--outcome", action="append", choices=["Download Now", "Archive", "Watch", "In Library", "Ignore"], help="Filter report to one or more outcomes")
     s.add_argument("--openrouter", choices=["auto", "refresh", "off"], default="auto", help="Use OpenRouter usage as a scoring signal. auto = use reports/openrouter-usage-latest.json if <14 days old; refresh = re-collect first (~3 min); off = ignore")
     s.add_argument("--openrouter-candidates", type=int, default=10, help="Also score the top N popular OpenRouter open-weight models missing from the library. 0 disables. Default: 10")
     s.set_defaults(func=cmd_research)

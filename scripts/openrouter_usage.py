@@ -90,11 +90,17 @@ def base_slug(model_id: str) -> str:
     return model_id.split(":", 1)[0]
 
 
+MODEL_ROOT = Path("/Users/davideddy/mnt/models")
+
+
 def load_local_inventory() -> dict[str, Any]:
-    """Use the newest structural audit (avoids rescanning the SMB share)."""
+    """Newest structural audit, plus a cheap live listing of model folder names on the share
+    (one directory listing per category) so models finished or still downloading since the
+    last audit are not reported as missing."""
     audits = sorted(REPORTS.glob("model-library-audit-*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
     repo_ids: set[str] = set()
     folders: list[str] = []
+    live: dict[str, str] = {}  # folder name (lower) -> "installed" | "downloading"
     source = None
     if audits:
         source = str(audits[0])
@@ -105,7 +111,16 @@ def load_local_inventory() -> dict[str, Any]:
                 repo_ids.add(row["repo_id"].lower())
             if row.get("folder_name"):
                 folders.append(row["folder_name"].lower())
-    return {"repo_ids": repo_ids, "folders": folders, "source": source}
+    try:
+        if (MODEL_ROOT / "LLM").is_dir():
+            for cat in (p for p in MODEL_ROOT.iterdir() if p.is_dir()):
+                nested = cat.name in {"Archive-Huge", "Uncensored"}
+                for child in (p for p in cat.iterdir() if p.is_dir()):
+                    for d in ((p for p in child.iterdir() if p.is_dir()) if nested else [child]):
+                        live[d.name.lower()] = "installed" if (d / "_hermes_model_metadata.json").exists() else "downloading"
+    except OSError:
+        pass  # share not mounted: fall back to the audit only
+    return {"repo_ids": repo_ids, "folders": folders, "live": live, "source": source}
 
 
 def local_status(hf_id: str, inv: dict[str, Any]) -> str:
@@ -113,9 +128,38 @@ def local_status(hf_id: str, inv: dict[str, Any]) -> str:
     if hid in inv["repo_ids"]:
         return "installed"
     name = hid.split("/", 1)[-1]
-    if any(name == f or f.startswith(name + "-") or f.startswith(name + "_") for f in inv["folders"]):
+    if name in inv.get("live", {}):
+        return inv["live"][name]
+    folders = inv["folders"] + list(inv.get("live", {}))
+    if any(name == f or f.startswith(name + "-") or f.startswith(name + "_") for f in folders):
         return "variant_installed"
     return "missing"
+
+
+def resolve_hf_id(hf_id: str) -> str | None:
+    """OpenRouter's `hugging_face_id` is sometimes a family name that does not exist on HF
+    (e.g. `nvidia/NVIDIA-Nemotron-3.5-Super-VL` vs the real `...-120B-A12B-BF16`).
+    Return the id if it exists, else the best same-author repo that starts with it, else None."""
+    try:
+        from huggingface_hub import HfApi, model_info
+    except ImportError:
+        return hf_id
+    try:
+        model_info(hf_id)
+        return hf_id
+    except Exception:  # noqa: BLE001 - 404/401: try to resolve below
+        pass
+    author, _, name = hf_id.partition("/")
+    try:
+        cands = [m for m in HfApi().list_models(author=author, search=name, sort="downloads", limit=20)
+                 if m.id.lower().startswith(hf_id.lower())]
+    except Exception:  # noqa: BLE001
+        return None
+    if not cands:
+        return None
+    quant = ("gguf", "awq", "gptq", "fp8", "nvfp4", "fp4", "int4", "int8", "mlx")
+    cands.sort(key=lambda m: (any(q in m.id.lower() for q in quant), -(m.downloads or 0)))
+    return cands[0].id
 
 
 def collect_rankings() -> list[dict[str, Any]]:
@@ -264,8 +308,26 @@ def main() -> None:
     print(f"Weekly ranking rows: {len(rankings)}")
 
     models = list(by_slug.values())
+    checked: set[str] = set()
+
+    def fix_hf_id(rec: dict[str, Any]) -> None:
+        """Validate/resolve the HF repo for ranked or popular open-weight models (cheap: ~30 calls)."""
+        hid = rec.get("hugging_face_id")
+        if not hid or rec["canonical_slug"] in checked:
+            return
+        checked.add(rec["canonical_slug"])
+        real = resolve_hf_id(hid)
+        if real and real != hid:
+            rec["openrouter_hf_id"] = hid
+            rec["hugging_face_id"] = real
+            print(f"  HF id resolved: {hid} -> {real}")
+        elif real is None:
+            rec["hf_id_unresolved"] = True
+
     for rec in models:
         rec["weekly_rank"] = (rank_by_slug.get(rec["canonical_slug"]) or {}).get("rank")
+        if rec["weekly_rank"]:
+            fix_hf_id(rec)
         rec["local_status"] = local_status(rec["hugging_face_id"], inv) if rec["hugging_face_id"] else "closed_weights"
 
     errors: list[dict[str, str]] = []
@@ -281,6 +343,10 @@ def main() -> None:
             if i % 25 == 0:
                 print(f"  {i}/{len(targets)}")
             time.sleep(args.delay)
+        for rec in models:
+            if (rec.get("usage") or {}).get("tokens_7d", 0) >= 10_000_000_000 and rec["canonical_slug"] not in checked:
+                fix_hf_id(rec)
+                rec["local_status"] = local_status(rec["hugging_face_id"], inv)
 
     result = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
