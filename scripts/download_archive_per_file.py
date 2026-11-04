@@ -36,8 +36,22 @@ def safe_folder_name(repo_id: str) -> str:
 WINDOWS_RESERVED = {"con", "prn", "aux", "nul", *(f"com{i}" for i in range(1, 10)), *(f"lpt{i}" for i in range(1, 10))}
 
 
+
+def model_info_retry(repo_id: str, tries: int = 6, **kw):
+    """HF metadata lookup with backoff: the VPN proxy occasionally drops a TLS handshake."""
+    import time
+    for n in range(tries):
+        try:
+            return model_info(repo_id, **kw)
+        except Exception as e:  # noqa: BLE001 - retry network errors, re-raise on the last try
+            if n == tries - 1 or "404" in str(e) or "401" in str(e) or "403" in str(e):
+                raise
+            wait = 15 * (n + 1)
+            print(f"HF lookup failed ({type(e).__name__}); retrying in {wait}s")
+            time.sleep(wait)
+
 def wanted_files(repo_id: str, ignore_suffixes: tuple[str, ...], exclude_prefixes: tuple[str, ...] = ()) -> dict[str, int]:
-    info = model_info(repo_id, files_metadata=True)
+    info = model_info_retry(repo_id, files_metadata=True)
     out: dict[str, int] = {}
     for sibling in info.siblings or []:
         rel = sibling.rfilename
@@ -119,7 +133,7 @@ def copy_file_to_target(src: Path, dst: Path) -> None:
 
 
 def write_metadata(repo_id: str, category: str, target: Path, expected: dict[str, int], exclude_prefixes: tuple[str, ...] = ()) -> None:
-    info = model_info(repo_id, files_metadata=True)
+    info = model_info_retry(repo_id, files_metadata=True)
     license_tag = None
     for tag in info.tags or []:
         if tag.startswith("license:"):
@@ -165,7 +179,7 @@ def main() -> None:
     staging = args.staging_root / safe_folder_name(args.repo_id)
     staging.mkdir(parents=True, exist_ok=True)
 
-    info = model_info(args.repo_id, files_metadata=True)
+    info = model_info_retry(args.repo_id, files_metadata=True)
     revision = info.sha or args.revision
     expected = wanted_files(args.repo_id, (".msgpack", ".h5"), tuple(args.exclude_prefix))
     complete, missing, mismatched = classify_files(target, expected)
