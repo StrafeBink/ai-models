@@ -262,6 +262,7 @@ OpenRouter usage is used as a real-world adoption signal in research scoring:
 ```bash
 python scripts/openrouter_usage.py                 # full snapshot, ~3 min, ~160 page fetches
 python scripts/openrouter_usage.py --rankings-only # weekly top-20 only, one page
+python scripts/scan_frontier_and_nvidia.py --days 21  # new frontier releases + NVIDIA-only (NVFP4) builds, read-only
 ```
 
 Sources:
