@@ -176,20 +176,43 @@ def _library_index(model_root: Path) -> dict[str, str]:
     if key not in _PRESENCE_CACHE:
         index: dict[str, str] = {}
         nested = {"Archive-Huge", "Uncensored"}
+        dirs: list[Path] = []
         for cat in sorted(p for p in model_root.iterdir() if p.is_dir()) if model_root.exists() else []:
             for child in (p for p in cat.iterdir() if p.is_dir()):
                 if cat.name in nested:
-                    for model_dir in (p for p in child.iterdir() if p.is_dir()):
-                        index.setdefault(model_dir.name, str(model_dir))
+                    if child.name == "Civitai":
+                        continue  # Civitai items have no HF repo id
+                    dirs.extend(p for p in child.iterdir() if p.is_dir())
                 else:
-                    index.setdefault(child.name, str(child))
+                    dirs.append(child)
+        for model_dir in dirs:
+            index.setdefault(model_dir.name, str(model_dir))
+            # Single-quant/curated folders use custom names: also index by the recorded repo id.
+            meta = model_dir / METADATA_NAME
+            try:
+                rid = json.loads(meta.read_text(encoding="utf-8")).get("repo_id") if meta.exists() else None
+            except (OSError, ValueError):
+                rid = None
+            if rid:
+                index.setdefault("repo:" + str(rid).lower(), str(model_dir))
+        # Repos in the active download queue (newest queue script) count as queued, not missing.
+        batches = sorted((Path(__file__).resolve().parent / "batches").glob("*-queue-v*.sh"),
+                         key=lambda f: int(re.search(r"-v(\d+)", f.name).group(1)))
+        if batches:
+            for rid in re.findall(r"^(?:archive|small) (\S+/\S+)", batches[-1].read_text(), re.M):
+                index.setdefault("queued:" + rid.lower(), batches[-1].name)
         _PRESENCE_CACHE[key] = index
     return _PRESENCE_CACHE[key]
 
 
 def local_presence(model_root: Path, repo_id: str) -> tuple[bool, str | None]:
-    path = _library_index(model_root).get(safe_folder_name(repo_id))
+    idx = _library_index(model_root)
+    path = idx.get("repo:" + repo_id.lower()) or idx.get(safe_folder_name(repo_id))
     return (True, path) if path else (False, None)
+
+
+def queued_in(model_root: Path, repo_id: str) -> str | None:
+    return _library_index(model_root).get("queued:" + repo_id.lower())
 
 
 def category_for_model(cfg: dict[str, Any], repo_id: str, tags: list[str], pipeline_tag: str | None) -> str:
@@ -352,6 +375,10 @@ def model_to_candidate(cfg: dict[str, Any], model: Any, model_root: Path, or_ind
         if rec in {"Download Now", "Archive"}:
             reason = f"would be {rec}, but {reason}"
             rec = "In Library"
+    elif (q := queued_in(model_root, repo_id)):
+        reason = f"already queued in {q}; {reason}"
+        if rec in {"Download Now", "Archive"}:
+            rec = "Queued"
     return Candidate(
         repo_id=repo_id,
         category=category,
@@ -508,7 +535,7 @@ def write_reports(candidates: list[Candidate], report_dir: Path, label: str, or_
     json_path.write_text(json.dumps([asdict(c) for c in candidates], indent=2), encoding="utf-8")
     lines = [f"# Model Research Report ({label})", "", f"Generated: {stamp}", ""]
     lines += openrouter_report_lines(or_index or {})
-    for outcome in ["Download Now", "Archive", "Watch", "In Library", "Ignore"]:
+    for outcome in ["Download Now", "Archive", "Watch", "Queued", "In Library", "Ignore"]:
         group = [c for c in candidates if c.recommendation == outcome]
         lines += [f"## {outcome} ({len(group)})", ""]
         for c in group[:50]:
@@ -565,7 +592,7 @@ def cmd_research(args: argparse.Namespace) -> None:
     print(f"Wrote {json_path}")
     print(f"Wrote {md_path}")
     print(f"Candidates: {len(candidates)}")
-    for outcome in ["Download Now", "Archive", "Watch", "In Library", "Ignore"]:
+    for outcome in ["Download Now", "Archive", "Watch", "Queued", "In Library", "Ignore"]:
         print(f"  {outcome}: {sum(1 for c in candidates if c.recommendation == outcome)}")
 
 
@@ -826,7 +853,7 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--limit", type=int, default=8, help="Results per search/task query")
     s.add_argument("--label", default="manual")
     s.add_argument("--report-dir", type=Path, default=DEFAULT_REPORT_DIR)
-    s.add_argument("--outcome", action="append", choices=["Download Now", "Archive", "Watch", "In Library", "Ignore"], help="Filter report to one or more outcomes")
+    s.add_argument("--outcome", action="append", choices=["Download Now", "Archive", "Watch", "Queued", "In Library", "Ignore"], help="Filter report to one or more outcomes")
     s.add_argument("--openrouter", choices=["auto", "refresh", "off"], default="auto", help="Use OpenRouter usage as a scoring signal. auto = use reports/openrouter-usage-latest.json if <14 days old; refresh = re-collect first (~3 min); off = ignore")
     s.add_argument("--openrouter-candidates", type=int, default=10, help="Also score the top N popular OpenRouter open-weight models missing from the library. 0 disables. Default: 10")
     s.set_defaults(func=cmd_research)

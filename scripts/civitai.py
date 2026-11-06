@@ -101,12 +101,19 @@ def api_get(path: str, params: dict | None = None, auth: bool = True) -> dict:
     raise SystemExit("unreachable")
 
 
+# Civitai's `minor` flag is creator-set and unreliable: also refuse by name/tag keywords
+# (English and common CJK terms for child/girl-child/loli/shota) in any NSFW context.
+CHILD_PATTERNS = re.compile(r"(?i)\b(loli|lolis|lolicon|shota|shotacon|child|children|kid|kids|toddler|preteen|pre-teen|underage|schoolgirl|elementary|little girl|young girl|petite child)\b|女児|幼女|幼児|児童|小学生|ロリ|ショタ|萝莉|正太|儿童|女童")
+
+
 def blocked_reason(model: dict) -> str | None:
     if model.get("poi"):
         return "depicts a real person (poi)"
     if model.get("minor"):
         return "flagged minor"
     text = " ".join([model.get("name", ""), " ".join(model.get("tags") or [])])
+    if CHILD_PATTERNS.search(text):
+        return "child-related content"
     if BLOCK_PATTERNS.search(text):
         return "face-swap / likeness tool"
     return None
