@@ -30,6 +30,11 @@ BASES = {
     "ltxv 2.5": ("LTX-2.5 (video)", ["Uncensored/Video/LTX-2.5-uncensored-v1.1-fp8_scaled"],
                  "That folder has the LTX-2.5 diffusion model plus text encoder, VAEs, upscalers and workflows."),
     "ltxv2": ("LTX-2 family (video)", ["Uncensored/Video/LTX-2.3-uncensored-v1.4-fp8mixed"], "Built for LTX-2; use with LTX-2.3."),
+    "krea 2": ("Krea 2 (image)", ["Diffusion-Image/Krea-2-fp8"], "Use `krea2_raw_fp8_scaled` with the Qwen3-VL 4B text encoder and VAE in that folder."),
+    "krea 2 turbo": ("Krea 2 Turbo (image)", ["Diffusion-Image/Krea-2-fp8"], "Use `krea2_turbo_fp8_scaled` (fewer steps) from that folder."),
+    "minimax h3": ("MiniMax-H3 (video)", ["Video/MiniMax-H3-fl2va-pruned-fp8"],
+                   "That folder has the pruned fp8 video model, Qwen3-VL 32B text encoder, VAEs and turbo LoRAs."),
+    "moss image": ("MOSS-Image", ["Diffusion-Image/MOSS-Image-SFT-bf16"], "That folder has the SFT model, Qwen3.5 9B text encoder and VAE."),
 }
 
 # Curated guidance for specific folders (path relative to ROOT).
