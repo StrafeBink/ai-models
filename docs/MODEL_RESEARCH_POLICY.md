@@ -31,7 +31,9 @@ For each candidate, Hermes should assess:
 
 ## Strategic archive criteria
 
-Huge models should not be archived merely because they are large. Archive when at least one criterion is strong:
+**Collection policy (David, 2026-11-06): archive every popular open-weight model, whether or not it runs on the B70.** Runnability decides download *order* (AI-box-sized models first), not *whether* to keep a model. "Popular" means any of: in the OpenRouter weekly top 20 (open weights), roughly 1,000+ HF likes or 1M+ downloads, or a top trending release of the last few weeks. Keep the latest release of each family; skip versions superseded by a newer release of the same model (state which). Archive-scale items queue last behind the free-space guard, and what doesn't fit is reported as storage needed, not dropped.
+
+Beyond popularity, archive when at least one criterion is strong:
 
 - major open-weight release from a credible lab
 - benchmark/capability frontier relevance
