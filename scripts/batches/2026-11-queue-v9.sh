@@ -20,11 +20,21 @@ RESERVE_GIB=500
 FAILED=(); SKIPPED=()
 COMMON=(--execute --resume --staging-dir download-staging --staging-copy-method rsync-inplace --max-workers 2)
 
-fits() {  # fits <needed_gib> <label>: true if the share keeps RESERVE_GIB free afterwards
-  local free; free=$(df -g "$SHARE" | awk 'NR==2{print $4}')
-  if [ "$free" -ge $(( $1 + RESERVE_GIB )) ]; then return 0; fi
-  echo "SKIPPED (space): $2 needs ${1} GiB, share has ${free} GiB free (reserve ${RESERVE_GIB})"
-  SKIPPED+=("$2"); return 1
+fits() {  # fits <needed_gib> <label>: wait (re-checking every 30 min) until the share keeps RESERVE_GIB free afterwards.
+  # David is adding ~20 TB (2026-11-07): items no longer skip for space; the queue pauses and resumes by itself.
+  local free announced=0
+  while :; do
+    free=$(df -g "$SHARE" 2>/dev/null | awk 'NR==2{print $4}')
+    if [ -n "$free" ] && [ "$free" -ge $(( $1 + RESERVE_GIB )) ]; then
+      [ "$announced" = 1 ] && echo "SPACE OK $(date -u +%Y-%m-%dT%H:%M:%SZ): ${free} GiB free, continuing with $2"
+      return 0
+    fi
+    if [ "$announced" = 0 ]; then
+      echo "WAITING (space) $(date -u +%Y-%m-%dT%H:%M:%SZ): $2 needs ${1} GiB, share has ${free:-?} GiB free (reserve ${RESERVE_GIB})"
+      announced=1
+    fi
+    sleep 1800
+  done
 }
 small() {  # small <repo> <size_gib> <args...>
   local repo=$1 size=$2; shift 2
