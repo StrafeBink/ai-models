@@ -101,14 +101,16 @@ small bartowski/Nanbeige_Nanbeige4.3-33B-GGUF 20 --category LLM --folder-name Na
   --allow-pattern 'Nanbeige_Nanbeige4.3-33B-Q4_K_M.gguf' --allow-pattern '*.md'
 small Diffuspace/Clover-35B-A3B-Preview-GGUF 22 --category LLM --folder-name Clover-35B-A3B-Preview-Q4_K_M \
   --allow-pattern 'Clover-35B-A3B-Preview-Q4_K_M.gguf' --allow-pattern '*.md'
-small ornith-ai/Ornith-1.5-122B-GGUF 72 --category Multimodal --folder-name Ornith-1.5-122B-Q4_K_M \
+# Single 70.6 GiB GGUF exceeds the HF regular-download limit: use the per-file downloader
+archive ornith-ai/Ornith-1.5-122B-GGUF 72 Multimodal --target "$SHARE/Multimodal/Ornith-1.5-122B-Q4_K_M" \
   --allow-pattern 'Ornith-1.5-122B-Q4_K_M.gguf' --allow-pattern 'mmproj-Ornith-1.5-122B-BF16.gguf' --allow-pattern '*.md'
 small openbmb/MiniCPM-OCR-1.0 3 --category Vision-OCR
 small LiquidAI/LFM3-Omni-2B 5 --category Multimodal
 small maya-research/maya2-native 5 --category Speech-TTS
 small gradium/phonon-31m-en 1 --category Speech-TTS
 # New image/video bases (one ComfyUI variant each: fp8/bf16 weights that also load on Arc)
-small Comfy-Org/MiniMax-H3 80 --category Video --folder-name MiniMax-H3-fl2va-pruned-fp8 \
+# 48 GiB text encoder exceeds the HF regular-download limit: per-file downloader
+archive Comfy-Org/MiniMax-H3 80 Video --target "$SHARE/Video/MiniMax-H3-fl2va-pruned-fp8" \
   --allow-pattern 'diffusion_models/minimax_h3_fl2va_pruned_fp8_scaled.safetensors' \
   --allow-pattern 'text_encoders/qwen3vl_32b_minimax_h3_bf16.safetensors' \
   --allow-pattern 'vae/minimax_h3_audio_vae_fp32.safetensors' --allow-pattern 'vae/minimax_h3_sol_vae_fp16.safetensors' \

@@ -10,6 +10,7 @@ verifies destination size, then removes the local staging copy.
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import json
 import os
 import shutil
@@ -50,12 +51,15 @@ def model_info_retry(repo_id: str, tries: int = 6, **kw):
             print(f"HF lookup failed ({type(e).__name__}); retrying in {wait}s")
             time.sleep(wait)
 
-def wanted_files(repo_id: str, ignore_suffixes: tuple[str, ...], exclude_prefixes: tuple[str, ...] = ()) -> dict[str, int]:
+def wanted_files(repo_id: str, ignore_suffixes: tuple[str, ...], exclude_prefixes: tuple[str, ...] = (),
+                 allow_patterns: tuple[str, ...] = ()) -> dict[str, int]:
     info = model_info_retry(repo_id, files_metadata=True)
     out: dict[str, int] = {}
     for sibling in info.siblings or []:
         rel = sibling.rfilename
         if rel.endswith(ignore_suffixes) or (exclude_prefixes and rel.startswith(exclude_prefixes)):
+            continue
+        if allow_patterns and not any(fnmatch.fnmatch(rel, pat) for pat in allow_patterns):
             continue
         # Windows-reserved names (e.g. a stray `nul`) cannot be created on the SMB share.
         if rel.rsplit("/", 1)[-1].split(".", 1)[0].lower() in WINDOWS_RESERVED:
@@ -132,7 +136,8 @@ def copy_file_to_target(src: Path, dst: Path) -> None:
     run(["rsync", "-t", "--inplace", "--progress", str(src), str(dst)], env=env)
 
 
-def write_metadata(repo_id: str, category: str, target: Path, expected: dict[str, int], exclude_prefixes: tuple[str, ...] = ()) -> None:
+def write_metadata(repo_id: str, category: str, target: Path, expected: dict[str, int], exclude_prefixes: tuple[str, ...] = (),
+                   allow_patterns: tuple[str, ...] = ()) -> None:
     info = model_info_retry(repo_id, files_metadata=True)
     license_tag = None
     for tag in info.tags or []:
@@ -143,7 +148,9 @@ def write_metadata(repo_id: str, category: str, target: Path, expected: dict[str
         "repo_id": repo_id,
         "downloaded_at_utc": datetime.now(timezone.utc).isoformat(),
         "category": category,
-        "archive": True,
+        "archive": "Archive-Huge" in target.parts,
+        "allow_patterns": list(allow_patterns) or None,
+        "local_folder_name": target.name,
         "ignore_patterns": [p.rstrip("/") + "/*" for p in exclude_prefixes] or None,
         "gated": str(info.gated),
         "license": license_tag,
@@ -167,6 +174,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--revision", default="main")
     p.add_argument("--keep-staging", action="store_true")
     p.add_argument("--max-files", type=int, default=0, help="Optional limit for testing/resume batches")
+    p.add_argument("--allow-pattern", action="append", default=[], help="Only fetch repo paths matching this glob; repeatable")
     p.add_argument("--exclude-prefix", action="append", default=[], help="Skip repo paths starting with this (e.g. GGUF/); repeatable")
     return p.parse_args()
 
@@ -181,7 +189,7 @@ def main() -> None:
 
     info = model_info_retry(args.repo_id, files_metadata=True)
     revision = info.sha or args.revision
-    expected = wanted_files(args.repo_id, (".msgpack", ".h5"), tuple(args.exclude_prefix))
+    expected = wanted_files(args.repo_id, (".msgpack", ".h5"), tuple(args.exclude_prefix), tuple(args.allow_pattern))
     complete, missing, mismatched = classify_files(target, expected)
     todo = missing + mismatched
     if args.max_files:
@@ -237,7 +245,7 @@ def main() -> None:
     print(f"Final mismatched: {len(mismatched)}")
     if missing or mismatched:
         raise SystemExit(1)
-    write_metadata(args.repo_id, args.category, target, expected, tuple(args.exclude_prefix))
+    write_metadata(args.repo_id, args.category, target, expected, tuple(args.exclude_prefix), tuple(args.allow_pattern))
     print(f"Metadata written: {target / '_hermes_model_metadata.json'}")
     if not args.keep_staging:
         shutil.rmtree(staging, ignore_errors=True)
